@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>库存盘点校验</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 顶部导航 */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 16px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-left {
+            position: absolute;
+            left: 0;
+        }
+
+        /* 步骤条 */
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            position: relative;
+            background-color: #ffffff;
+            /* border-bottom: 1px solid #e0e0e0; */
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            /* background-color: #e0e0e0; */
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .step.active .step-circle {
+            background-color: #ff6b81;
+            color: white;
+        }
+
+        .step.inactive .step-circle {
+            background-color: #e0e0e0;
+            color: #999;
+        }
+
+        .step-content {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .step.active .step-content {
+            color: #ff6b81;
+            font-weight: bold;
+        }
+
+        .step.inactive .step-content {
+            color: #999;
+        }
+
+        /* 提示信息 */
+        .alert {
+            margin: 8px;
+            padding: 8px 8px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+            color: #ff8c00;
+            margin-top: 2px;
+        }
+
+        .alert-text {
+            flex: 1;
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.4;
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 0 16px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #999;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #ff6b81;
+            border-bottom-color: #ff6b81;
+        }
+
+        /* 商品卡片 */
+        .product-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-card {
+            background: linear-gradient(to bottom, #FDF7F9, #ffffff);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #ff6b81;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .product-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .product-info {
+            flex: 1;
+            padding:  8px 0px;
+        }
+
+        .brand-tag {
+            display: inline-block;
+            background: #ff6b81;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .brand-tag {
+            display: inline-block;
+            background: #ff6b81;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 16px;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .stock-label {
+            margin-right: 4px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .stock-value {
+            font-weight: 700;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .stock-diff {
+            color: #ff6b81;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .unit {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 库存对比卡片 */
+        .stock-comparison {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stock-card {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .stock-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .stock-card .stock-item {
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .stock-card .stock-diff {
+            font-size: 13px;
+            text-align: right;
+        }
+
+        .stock-card.store .stock-diff {
+            color: #3b82f6;
+        }
+
+        .stock-card.credit .stock-diff {
+            color: #f97316;
+        }
+
+        .stock-card.store {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stock-card.credit {
+            border-left: 4px solid #f97316;
+        }
+
+        /* 赊销商品差异说明 */
+        .credit-diff-info {
+            background: #ffffff;
+            border: 1px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .credit-diff-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .diff-detail {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            margin: 20px 0 12px 0;
+        }
+
+        .section-title h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .unit {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 差异明细 */
+        .diff-details {
+            margin-top: 16px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 16px;
+        }
+
+        .diff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .diff-header span:first-child {
+            font-weight: 600;
+        }
+
+        .diff-header:hover {
+            background-color: #e9ecef;
+        }
+
+        .diff-content {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .diff-row {
+            margin-bottom: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .diff-row-toggle {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .diff-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .diff-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .diff-value {
+            text-align: right;
+            color: #666;
+        }
+
+        /* 差异明细卡片样式 */
+        .diff-item-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            padding: 16px;
+        }
+
+        .diff-item-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .code {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .status-tag.in-stock {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-tag.out-stock {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .batch-number {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .status-desc {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .status-desc span:first-child {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .desc-text {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .desc-text.normal {
+            color: #10b981;
+        }
+
+        .desc-text.profit {
+            color: #ef4444;
+        }
+
+        .desc-text.loss {
+            color: #ef4444;
+        }
+
+        /* 底部按钮 */
+        .bottom-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #ff6b81;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #ff6b81;
+            border: 1px solid #ff6b81;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <iconify-icon icon="ri:arrow-left-line" style="font-size: 20px; cursor: pointer;"></iconify-icon>
+        </div>
+        <div class="header-content">
+            <h1 class="header-title">库存盘点</h1>
+        </div>
+        <div style="width: 24px;"></div> <!-- 占位，保持标题居中 -->
+    </div>
+
+    <!-- 步骤条 -->
+    <div class="steps">
+        <div class="step active">
+            <div class="step-circle">✓</div>
+            <div class="step-content">录入产品</div>
+        </div>
+        <div class="step active">
+            <div class="step-circle">✓</div>
+            <div class="step-content">校验库存</div>
+        </div>
+        <div class="step inactive">
+            <div class="step-circle">3</div>
+            <div class="step-content">完成盘点</div>
+        </div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="alert">
+        <div class="alert-icon">
+            <iconify-icon icon="ri:alert-line"></iconify-icon>
+        </div>
+        <div class="alert-text">
+            手机端盘点完成后，系统会自动根据实物库存进行校正.请谨慎提交!
+        </div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+        <div class="tab active" data-tab="abnormal">异常库存</div>
+        <div class="tab" data-tab="normal">正常库存</div>
+    </div>
+
+    <!-- 异常库存商品列表 -->
+    <div id="abnormal-tab" class="product-list">
+        <!-- 商品卡片 1 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">图朵拉保湿精华液50ml</div>
+                    <div class="stock-info">
+                        <div class="stock-item">
+                            <span class="stock-label">实际</span>
+                            <span class="stock-value">10</span>
+                        </div>
+                        <div class="stock-item">
+                            <span class="stock-label">系统</span>
+                            <span class="stock-value">9</span>
+                        </div>
+                        <div class="stock-diff">差异: +1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="diff-details">
+                <div class="diff-header" onclick="toggleDiff(this)">
+                    <span>差异明细</span>
+                    <i class="fas fa-chevron-down diff-toggle"></i>
+                </div>
+                <div class="diff-content hidden">
+                    <div class="stock-comparison">
+                        <div class="stock-card store">
+                            <h4>门店自有</h4>
+                            <div class="stock-item">
+                                <span>实际 5  |&nbsp;</span>
+                                <span>系统 5</span>
+                            </div>
+                            <div class="stock-diff">0</div>
+                        </div>
+                        <div class="stock-card credit">
+                            <h4>赊销铺货</h4>
+                            <div class="stock-item">
+                                <span>实际 1  |&nbsp;</span>
+                                <span>系统 4</span>
+                            </div>
+                            <div class="stock-diff">-3</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 赊销商品差异说明 -->
+                    <div class="credit-diff-info">
+                        <h4>赊销商品差异说明</h4>
+                        <div>新增入库 3 件，新增出库 6 件</div>
+                    </div>
+                    
+                    <!-- 赊销货品明细标题 -->
+                    <div class="section-title">
+                        <h3>赊销货品盘点明细</h3>
+                    </div>
+                    
+                    <div class="diff-item-card">
+                        <div class="diff-item-header">
+                            <span class="code">商品编码: 6900000000028</span>
+                            <span class="status-tag in-stock">在库</span>
+                        </div>
+                        <div class="batch-number">批次: B20260415</div>
+                        <div class="status-desc">
+                            <span>状态说明</span>
+                            <span class="desc-text normal">实际与系统一致</span>
+                        </div>
+                    </div>
+                    
+                    <div class="diff-item-card">
+                        <div class="diff-item-header">
+                            <span class="code">商品编码: 7000000000108</span>
+                            <span class="status-tag out-stock">已出库</span>
+                        </div>
+                        <div class="batch-number">批次: B20260420</div>
+                        <div class="status-desc">
+                            <span>状态说明</span>
+                            <span class="desc-text loss">盘亏出库</span>
+                        </div>
+                    </div>
+                    
+                    <div class="diff-item-card">
+                        <div class="diff-item-header">
+                            <span class="code">商品编码: 7000000000199</span>
+                            <span class="status-tag out-stock">已出库</span>
+                        </div>
+                        <div class="batch-number">批次: B20260420</div>
+                        <div class="status-desc">
+                            <span>状态说明</span>
+                            <span class="desc-text loss">盘亏出库</span>
+                        </div>
+                    </div>
+                    
+                    <div class="diff-item-card">
+                        <div class="diff-item-header">
+                            <span class="code">商品编码: 7000000000120</span>
+                            <span class="status-tag out-stock">已出库</span>
+                        </div>
+                        <div class="batch-number">批次: B20260420</div>
+                        <div class="status-desc">
+                            <span>状态说明</span>
+                            <span class="desc-text loss">盘亏出库</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 2 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">克丽缇娜光采雪莹洁容霜120g</div>
+                    <div class="stock-info">
+                        <div class="stock-item">
+                            <span class="stock-label">实际</span>
+                            <span class="stock-value">3</span>
+                        </div>
+                        <div class="stock-item">
+                            <span class="stock-label">系统</span>
+                            <span class="stock-value">4</span>
+                        </div>
+                        <div class="stock-diff">差异: -1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="diff-details">
+                <div class="diff-header" onclick="toggleDiff(this)">
+                    <span>差异明细</span>
+                    <i class="fas fa-chevron-down diff-toggle"></i>
+                </div>
+                <div class="diff-content hidden">
+                    <div class="diff-row">
+                        <span class="diff-label">门店自有</span>
+                        <span class="diff-value">实际5件 | 系统2件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销铺货</span>
+                        <span class="diff-value">实际5件 | 系统8件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销库存差异</span>
+                        <span class="diff-value">-3 件，新增入库 0 件，新增出库 3 件</span>
+                    </div>
+                    
+                    <table class="diff-table">
+                        <thead>
+                            <tr>
+                                <th>批次号</th>
+                                <th>商品唯一编码</th>
+                                <th>状态</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>A0001</td>
+                                <td>A1</td>
+                                <td>在库</td>
+                                <td>实际与系统一致</td>
+                            </tr>
+                            <tr>
+                                <td>A0001</td>
+                                <td>A2</td>
+                                <td>在库</td>
+                                <td>实际与系统一致</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 3 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">克丽缇娜限定护手霜 50ML/瓶</div>
+                    <div class="stock-info">
+                        <div class="stock-item">
+                            <span class="stock-label">实际</span>
+                            <span class="stock-value">4</span>
+                        </div>
+                        <div class="stock-item">
+                            <span class="stock-label">系统</span>
+                            <span class="stock-value">3</span>
+                        </div>
+                        <div class="stock-diff">差异: +1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="diff-details">
+                <div class="diff-header" onclick="toggleDiff(this)">
+                    <span>差异明细</span>
+                    <i class="fas fa-chevron-down diff-toggle"></i>
+                </div>
+                <div class="diff-content hidden">
+                    <div class="diff-row">
+                        <span class="diff-label">门店自有</span>
+                        <span class="diff-value">实际5件 | 系统2件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销铺货</span>
+                        <span class="diff-value">实际5件 | 系统8件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销库存差异</span>
+                        <span class="diff-value">-3 件，新增入库 3 件，新增出库 6 件</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 4 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">春季限定护发精油 10ML/支</div>
+                    <div class="stock-info">
+                        <div class="stock-item">
+                            <span class="stock-label">实际</span>
+                            <span class="stock-value">10</span>
+                        </div>
+                        <div class="stock-item">
+                            <span class="stock-label">系统</span>
+                            <span class="stock-value">10</span>
+                        </div>
+                        <div class="stock-diff">差异: 0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="diff-details">
+                <div class="diff-header" onclick="toggleDiff(this)">
+                    <span>差异明细</span>
+                    <i class="fas fa-chevron-down diff-toggle"></i>
+                </div>
+                <div class="diff-content hidden">
+                    <div class="diff-row">
+                        <span class="diff-label">门店自有</span>
+                        <span class="diff-value">实际5件 | 系统2件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销铺货</span>
+                        <span class="diff-value">实际5件 | 系统8件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销库存差异</span>
+                        <span class="diff-value">-3 件，新增入库 3 件，新增出库 6 件</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 5 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">舒源肌活</div>
+                    <div class="stock-info">
+                        <div class="stock-item">
+                            <span class="stock-label">实际</span>
+                            <span class="stock-value">10</span>
+                        </div>
+                        <div class="stock-item">
+                            <span class="stock-label">系统</span>
+                            <span class="stock-value">10</span>
+                        </div>
+                        <div class="stock-diff">差异: 0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="diff-details">
+                <div class="diff-header" onclick="toggleDiff(this)">
+                    <span>差异明细</span>
+                    <i class="fas fa-chevron-down diff-toggle"></i>
+                </div>
+                <div class="diff-content hidden">
+                    <div class="diff-row">
+                        <span class="diff-label">门店自有</span>
+                        <span class="diff-value">实际5件 | 系统2件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销铺货</span>
+                        <span class="diff-value">实际5件 | 系统8件</span>
+                    </div>
+                    <div class="diff-row">
+                        <span class="diff-label">赊销库存差异</span>
+                        <span class="diff-value">-3 件，新增入库 3 件，新增出库 6 件</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 正常库存商品列表 -->
+    <div id="normal-tab" class="product-list hidden">
+        <!-- 商品卡片 1 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">正常商品1</div>
+                    <div class="stock-info">
+                        实际 5 | 系统 5
+                        <span style="color: #52c41a;">(一致)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 2 -->
+        <div class="product-card">
+            <div class="product-header">
+                <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                <div class="product-info">
+                    <div class="product-name">正常商品2</div>
+                    <div class="stock-info">
+                        实际 10 | 系统 10
+                        <span style="color: #52c41a;">(一致)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="bottom-buttons">
+        <button class="btn btn-secondary">校正</button>
+        <button class="btn btn-primary">盘点完成</button>
+    </div>
+
+    <script>
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有标签的active类
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // 添加当前标签的active类
+                this.classList.add('active');
+                
+                // 隐藏所有内容
+                document.getElementById('abnormal-tab').classList.add('hidden');
+                document.getElementById('normal-tab').classList.add('hidden');
+                
+                // 显示对应内容
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + '-tab').classList.remove('hidden');
+            });
+        });
+
+        // 差异明细展开/折叠
+        function toggleDiff(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.diff-toggle');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // 差异行展开/折叠
+        function toggleDiffRow(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.diff-row-toggle');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // 模拟数据 - 实际使用时可以从后端获取
+        function loadProducts() {
+            // 模拟商品数据
+            const products = [
+                {
+                    id: 1,
+                    name: '图朵拉保湿精华液50ml',
+                    storeActual: 5,
+                    storeSystem: 5,
+                    creditActual: 1,
+                    creditSystem: 4
+                },
+                {
+                    id: 2,
+                    name: '克丽缇娜光采雪莹洁容霜120g',
+                    storeActual: 2,
+                    storeSystem: 1,
+                    creditActual: 1,
+                    creditSystem: 3
+                },
+                {
+                    id: 3,
+                    name: '克丽缇娜限定护手霜 50ML/瓶',
+                    storeActual: 2,
+                    storeSystem: 1,
+                    creditActual: 3,
+                    creditSystem: 4
+                },
+                {
+                    id: 4,
+                    name: '测试产品0828',
+                    storeActual: 6,
+                    storeSystem: 6,
+                    creditActual: 4,
+                    creditSystem: 4
+                },
+                {
+                    id: 5,
+                    name: '舒源肌活',
+                    storeActual: 2,
+                    storeSystem: 2,
+                    creditActual: 8,
+                    creditSystem: 8
+                }
+            ];
+
+            // 计算库存并更新页面
+            products.forEach((product, index) => {
+                const actualStock = product.storeActual + product.creditActual;
+                const systemStock = product.storeSystem + product.creditSystem;
+                const diff = actualStock - systemStock;
+                
+                // 更新商品卡片
+                const cards = document.querySelectorAll('.product-card');
+                if (cards[index]) {
+                    const stockInfo = cards[index].querySelector('.stock-info');
+                    if (stockInfo) {
+                        stockInfo.innerHTML = `
+                            <div class="stock-item">
+                                <span class="stock-label">实际</span>
+                                <span class="stock-value">${actualStock}</span>
+                            </div>
+                            <div class="stock-item">
+                                <span class="stock-label">系统</span>
+                                <span class="stock-value">${systemStock}</span>
+                            </div>
+                            <div class="stock-diff">差异: ${diff > 0 ? '+' : ''}${diff}</div>
+                        `;
+                    }
+                }
+            });
+        }
+
+        // 页面加载时执行
+        window.onload = function() {
+            loadProducts();
+        };
+    </script>
+</body>
+</html>

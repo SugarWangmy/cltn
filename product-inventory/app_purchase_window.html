@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>克丽缇娜 - 购买商品</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .mobile-container {
+            width: 375px;
+            height: 812px;
+            background-color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 8px solid #1a1a1a;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background-color: #D27685;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+<!-- 状态栏 -->
+<div class="px-6 pt-4 pb-2 flex justify-between items-center text-[14px] font-bold">
+<span>17:27 ★</span>
+<div class="flex items-center space-gap-1">
+<iconify-icon class="text-lg" icon="mdi:signal-cellular-3"></iconify-icon>
+<span class="mx-1">5G</span>
+<div class="border border-black rounded-sm px-0.5 flex items-center">
+<span class="text-[10px]">20</span>
+<div class="w-1 h-2 bg-black ml-0.5"></div>
+</div>
+</div>
+</div>
+<!-- 标题栏 -->
+<div class="flex items-center px-4 py-2 relative">
+<iconify-icon class="text-3xl cursor-pointer" icon="mdi:chevron-left"></iconify-icon>
+<h1 class="absolute left-1/2 -translate-x-1/2 text-[18px] font-medium">购买商品</h1>
+</div>
+<!-- 搜索与分类区 -->
+<div class="bg-[#716e6e] p-4 pb-2">
+<div class="flex gap-2 mb-3">
+<div class="flex-1 bg-[#8a8787] rounded flex items-center px-3 py-1.5">
+<iconify-icon class="text-white/70 text-lg mr-2" icon="mdi:magnify"></iconify-icon>
+<input class="bg-transparent text-white text-sm outline-none placeholder:text-white/50 w-full" placeholder="输入商品名称搜索" type="text"/>
+</div>
+<button class="bg-[#5a4a4a] text-white/80 px-5 py-1.5 rounded text-sm">查询</button>
+</div>
+<div class="flex gap-6 text-white/80 text-[15px] pb-1">
+<span class="text-[#D27685] font-medium">居家产品</span>
+<span>单次护理</span>
+<span>卡项</span>
+</div>
+</div>
+<!-- 内容区 (滚动) -->
+<div class="flex-1 overflow-y-auto hide-scrollbar bg-white">
+<!-- 已选商品头部 -->
+<div class="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+<div class="flex items-baseline gap-2">
+<span class="text-[16px] font-bold text-gray-800">已选商品</span>
+<span class="text-xs text-gray-400 font-normal">共选1件</span>
+</div>
+<button class="text-gray-400 text-sm">全部清空</button>
+</div>
+<!-- 选项卡 -->
+<div class="flex border-b border-gray-50">
+<div class="flex-1 py-3 text-center relative text-[#D27685] font-medium active-tab">用户权益</div>
+<div class="flex-1 py-3 text-center text-gray-400">门店商品</div>
+</div>
+<!-- 用户权益卡片 -->
+<div class="m-3 bg-[#FCE7F3]/50 rounded-lg p-4 relative overflow-hidden">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-1">
+<span class="text-[15px] font-bold text-[#5c4040]">1000元金额卡</span>
+</div>
+<div class="text-[12px] text-gray-500">
+                    到期时间 2026-05-02
+                </div>
+</div>
+<!-- 新增文字要求 -->
+<div class="text-[11px] text-[#D27685] mt-1 mb-2 opacity-80">
+                抵扣后余额: 300 居家产品 9折 | 服务疗程 8折 | 次卡 9折
+            </div>
+<!-- 商品条目 -->
+<div class="bg-white rounded-lg p-3 mt-3 shadow-sm relative">
+<div class="flex gap-3">
+<!-- 商品图片占位 -->
+<div class="w-16 h-16 bg-gray-50 border border-gray-100 rounded flex flex-col items-center justify-center p-1">
+<span class="text-[8px] text-red-300 font-bold scale-75">CHLITINA</span>
+<span class="text-[8px] text-red-200 scale-50 -mt-1">克丽缇娜</span>
+</div>
+<!-- 商品详情 -->
+<div class="flex-1">
+<div class="flex justify-between">
+<h3 class="text-[14px] font-bold text-gray-800">398调配商品</h3>
+<iconify-icon class="text-red-400 text-lg" icon="mdi:trash-can-outline"></iconify-icon>
+</div>
+<p class="text-[11px] text-gray-400">50ML/罐</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] text-gray-400">折后</span>
+<span class="text-[14px] font-bold text-gray-800">¥ 398.00</span>
+<span class="text-[10px] text-gray-300 line-through">¥ 398.00</span>
+<button class="text-[10px] border border-gray-200 text-gray-400 px-1 rounded ml-1">改价</button>
+</div>
+<!-- 数量选择器 -->
+<div class="flex items-center mt-3 border border-gray-100 rounded w-fit h-6">
+<button class="px-2 text-gray-300 border-r border-gray-100">-</button>
+<span class="px-4 text-xs font-bold">1</span>
+<button class="px-2 text-red-300 border-l border-gray-100">+</button>
+</div>
+</div>
+</div>
+<!-- 底部选项 -->
+<div class="grid grid-cols-3 mt-4 pt-3 border-t border-gray-50 text-[11px] text-center">
+<div>
+<p class="text-gray-400 mb-1">免费赠送</p>
+<div class="flex justify-center">
+<div class="w-8 h-4 bg-gray-200 rounded-full relative">
+<div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+<div>
+<p class="text-gray-400 mb-1">美容师</p>
+<p class="text-red-400 flex items-center justify-center">请选择美容师 <iconify-icon icon="mdi:chevron-right"></iconify-icon></p>
+</div>
+<div>
+<p class="text-gray-400 mb-1">卡种</p>
+<p class="text-gray-500 flex items-center justify-center">1000元金额卡 <iconify-icon icon="mdi:chevron-right"></iconify-icon></p>
+</div>
+</div>
+</div>
+</div>
+<!-- 门店商品入口 -->
+<div class="px-4 py-4 flex items-center gap-2">
+<div class="w-1 h-4 bg-[#D27685] rounded-full"></div>
+<span class="text-[15px] font-bold text-gray-700">门店商品</span>
+</div>
+</div>
+<!-- 底部操作区 -->
+<div class="p-4 border-t border-gray-100 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="bg-[#FCE7F3] p-2 rounded-full">
+<iconify-icon class="text-2xl text-[#D27685]" icon="mdi:cart-outline"></iconify-icon>
+</div>
+<span class="absolute -top-1 -right-1 bg-[#D27685] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border border-white">1</span>
+</div>
+<div>
+<p class="text-[12px] text-gray-400">合计</p>
+<p class="text-[18px] font-bold text-[#D27685]">¥ 0.00</p>
+</div>
+</div>
+<button class="bg-[#D27685] text-white px-10 py-3 rounded-md font-bold shadow-lg shadow-pink-100">下一步</button>
+</div>
+<!-- 底部指示条 -->
+<div class="h-1.5 w-32 bg-gray-200 mx-auto mb-2 rounded-full"></div>
+</div>
+</body>
+</html>

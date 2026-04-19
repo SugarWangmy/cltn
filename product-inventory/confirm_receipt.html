@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>确认入库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 顶部导航 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 16px;
+            padding: 8px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        /* 提示框 */
+        .info-box {
+            background-color: #fff9e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #666666;
+        }
+
+        /* 商品卡片 */
+        .product-card {
+            width: 100%;
+            border: 1px solid #ff6b81;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: linear-gradient(to bottom, #FDF7F9, #ffffff);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .product-header {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+            flex: 1;
+            line-height: 1.4;
+            text-align: left;
+            margin-right: 12px;
+        }
+
+        .product-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-spec {
+            font-size: 13px;
+            color: #666666;
+            text-align: left;
+        }
+
+        .product-total {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            gap: 8px;
+        }
+
+        .product-total-label {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .product-total-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b81;
+        }
+
+        .quantity-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .quantity-label {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .quantity-editor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .barcode-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 0;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .barcode-summary-label {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .barcode-count {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .barcode-details {
+            width: 100%;
+        }
+
+        .barcode-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 0.8fr 0.5fr;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 12px;
+            color: #333333;
+            align-items: center;
+        }
+
+        .barcode-row:last-child {
+            border-bottom: none;
+        }
+
+        .stock-type {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            background: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-btn:active {
+            background: #f5f5f5;
+        }
+
+        .qty-input {
+            width: 60px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:active {
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .delete-product-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-product-btn:active {
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .stock-type.credit {
+            background: #fff2e8;
+            color: #fa8c16;
+        }
+
+        .stock-type.distribution {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 入库原因 */
+        .receipt-reason-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+            margin-bottom: 10px;
+
+        }
+
+        .reason-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .reason-header .reason-selector {
+            flex: 1;
+            max-width: 200px;
+            margin-left: 12px;
+        }
+
+        .reason-selector {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reason-selector.selected {
+            border-color: #ff6b81;
+            background-color: #fdf7f9;
+        }
+
+        .reason-text {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .reason-text.selected {
+            color: #ff6b81;
+            font-weight: 500;
+        }
+
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+            color: #999999;
+        }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .action-buttons {
+            width: auto;
+        }
+
+        .item-count {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: #ff6b81;
+            border: 1px solid #ff6b81;
+            color: #ffffff;
+        }
+
+        .btn:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999999;
+            padding: 4px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .reason-option {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .reason-option:last-child {
+            border-bottom: none;
+        }
+
+        .reason-option.selected {
+            color: #ff6b81;
+        }
+
+        .radio-button {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-button.selected {
+            border-color: #ff6b81;
+            background-color: #ff6b81;
+        }
+
+        .radio-button.selected::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 线性图标 */
+        .linear-icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 375px) {
+            .barcode-row {
+                font-size: 11px;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <button class="back-button" onclick="goBack()">
+            <svg class="linear-icon" style="width: 20px; height: 20px; color: #333333;" viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <h1 class="page-title">确认入库</h1>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 入库清单 -->
+        <div class="receipt-list-section">
+            <h2 class="section-title">入库清单</h2>
+            <div id="receiptList" class="receipt-list">
+                <!-- 商品卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 入库原因 -->
+        <div class="receipt-reason-section">
+            <div class="reason-header">
+                <h2 class="section-title">选择入库原因</h2>
+                <div class="reason-selector" onclick="openReasonModal()">
+                    <span id="selectedReasonText" class="reason-text">请选择入库原因</span>
+                    <svg class="linear-icon arrow-icon" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+        <div class="item-count" id="itemCount">共计 0</div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="completeReceipt()">完成入库</button>
+        </div>
+    </div>
+
+    <!-- 入库原因弹窗 -->
+    <div class="modal" id="reasonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>请选择入库原因</h3>
+                <button class="close-btn" onclick="closeReasonModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="reason-option" onclick="selectReason('采购入库')">
+                    <div class="radio-button"></div>
+                    <span>采购入库</span>
+                </div>
+                <div class="reason-option" onclick="selectReason('盘盈入库')">
+                    <div class="radio-button"></div>
+                    <span>盘盈入库</span>
+                </div>
+                <div class="reason-option" onclick="selectReason('调拨入库')">
+                    <div class="radio-button"></div>
+                    <span>调拨入库</span>
+                </div>
+                <div class="reason-option" onclick="selectReason('退货入库')">
+                    <div class="radio-button"></div>
+                    <span>退货入库</span>
+                </div>
+                <div class="reason-option" onclick="selectReason('寄存入库')">
+                    <div class="radio-button"></div>
+                    <span>寄存入库</span>
+                </div>
+                <div class="reason-option" onclick="selectReason('其他入库')">
+                    <div class="radio-button"></div>
+                    <span>其他入库</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="confirmReason()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 入库商品列表
+        let receiptProducts = [];
+        // 选中的入库原因
+        let selectedReason = '';
+
+        // 页面加载时获取商品数据
+        window.onload = function() {
+            // 从URL参数中获取商品数据
+            const urlParams = new URLSearchParams(window.location.search);
+            const productsJson = urlParams.get('products');
+            if (productsJson) {
+                receiptProducts = JSON.parse(productsJson);
+                renderProductList();
+                updateItemCount();
+            }
+        };
+
+        // 返回按钮功能
+        function goBack() {
+            window.history.back();
+        }
+
+        // 渲染商品列表
+        function renderProductList() {
+            const container = document.getElementById('receiptList');
+            
+            if (receiptProducts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999999; padding: 20px;">暂无入库商品</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            receiptProducts.forEach((product, index) => {
+                const barcodeCount = product.barcodes.length;
+                const subtotal = product.quantity + barcodeCount;
+                html += `
+                    <div class="product-card" data-index="${index}">
+                        <div class="product-header">
+                            <div class="product-header-row">
+                                <div class="product-name">${product.name}</div>
+                                <button class="delete-product-btn" onclick="deleteProduct(${index})"><svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                            </div>
+                            <div class="product-info-row">
+                                <div class="product-spec">${product.specification}</div>
+                                <div class="product-total">
+                                    <span class="product-total-label">小计</span>
+                                    <span class="product-total-value">${subtotal}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">手动选择数量</span>
+                            <div class="quantity-editor">
+                                <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                                <input type="number" class="qty-input" value="${product.quantity}" min="1" onchange="updateQuantity(${index}, this.value)">
+                                <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="barcode-summary-row">
+                            <span class="barcode-summary-label">扫描/输入条码明细</span>
+                            <span class="barcode-count">${barcodeCount}件</span>
+                        </div>
+                        <div class="barcode-details">
+                            ${product.barcodes.map((barcode, barcodeIndex) => `
+                                <div class="barcode-row">
+                                    <span>${barcode.batchNo}</span>
+                                    <span>${barcode.barcode}</span>
+                                    <span class="stock-type ${barcode.stockType === '赊销' ? 'credit' : 'distribution'}">${barcode.stockType}</span>
+                                    <button class="delete-btn" onclick="deleteBarcode(${index}, ${barcodeIndex})" "><svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 打开入库原因弹窗
+        function openReasonModal() {
+            document.getElementById('reasonModal').style.display = 'block';
+        }
+
+        // 关闭入库原因弹窗
+        function closeReasonModal() {
+            document.getElementById('reasonModal').style.display = 'none';
+        }
+
+        // 选择入库原因
+        function selectReason(reason) {
+            selectedReason = reason;
+            
+            // 更新单选按钮状态
+            const options = document.querySelectorAll('.reason-option');
+            options.forEach(option => {
+                const radio = option.querySelector('.radio-button');
+                if (option.textContent.trim() === reason) {
+                    option.classList.add('selected');
+                    radio.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                    radio.classList.remove('selected');
+                }
+            });
+        }
+
+        // 确认入库原因
+        function confirmReason() {
+            if (selectedReason) {
+                const reasonText = document.getElementById('selectedReasonText');
+                reasonText.textContent = selectedReason;
+                reasonText.classList.add('selected');
+                
+                const reasonSelector = document.querySelector('.reason-selector');
+                reasonSelector.classList.add('selected');
+                
+                closeReasonModal();
+            }
+        }
+
+        // 修改数量
+        function changeQuantity(index, delta) {
+            const product = receiptProducts[index];
+            const newQuantity = product.quantity + delta;
+            if (newQuantity >= 1) {
+                product.quantity = newQuantity;
+                renderProductList();
+                updateItemCount();
+            }
+        }
+
+        // 更新数量
+        function updateQuantity(index, value) {
+            const quantity = parseInt(value);
+            if (quantity >= 1) {
+                receiptProducts[index].quantity = quantity;
+                renderProductList();
+                updateItemCount();
+            }
+        }
+
+        // 同步条码数量与手动输入数量
+        function syncBarcodeQuantity(product) {
+            const currentBarcodeCount = product.barcodes.length;
+            const targetQuantity = product.quantity;
+            
+            if (targetQuantity > currentBarcodeCount) {
+                // 需要添加条码
+                const diff = targetQuantity - currentBarcodeCount;
+                for (let i = 0; i < diff; i++) {
+                    const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(currentBarcodeCount + i).padStart(3, '0');
+                    const barcode = '690' + String(product.id).padStart(9, '0') + Math.floor(Math.random() * 10);
+                    const stockType = Math.random() > 0.5 ? '赊销' : '门店自有';
+                    product.barcodes.push({
+                        batchNo: batchNo,
+                        barcode: barcode,
+                        stockType: stockType
+                    });
+                }
+            } else if (targetQuantity < currentBarcodeCount) {
+                // 需要删除多余的条码
+                product.barcodes.splice(targetQuantity);
+            }
+        }
+
+        // 删除条码
+        function deleteBarcode(productIndex, barcodeIndex) {
+            const product = receiptProducts[productIndex];
+            product.barcodes.splice(barcodeIndex, 1);
+            
+            // 如果没有条码了，删除整个商品
+            if (product.barcodes.length === 0) {
+                receiptProducts.splice(productIndex, 1);
+            }
+            
+            renderProductList();
+            updateItemCount();
+        }
+
+        // 删除商品
+        function deleteProduct(index) {
+            receiptProducts.splice(index, 1);
+            renderProductList();
+            updateItemCount();
+        }
+
+        // 更新商品计数
+        function updateItemCount() {
+            const totalCount = receiptProducts.reduce((sum, p) => {
+                const subtotal = p.quantity + p.barcodes.length;
+                return sum + subtotal;
+            }, 0);
+            document.getElementById('itemCount').textContent = `共计 ${totalCount}`;
+        }
+
+        // 完成入库
+        function completeReceipt() {
+            if (!selectedReason) {
+                alert('请选择入库原因');
+                return;
+            }
+            
+            // 计算总收货数量
+            const totalCount = receiptProducts.reduce((sum, p) => {
+                const subtotal = p.quantity + p.barcodes.length;
+                return sum + subtotal;
+            }, 0);
+            
+            // 计算赊销和门店自有的数量
+            let creditCount = 0;
+            let distributionCount = 0;
+            
+            receiptProducts.forEach(product => {
+                product.barcodes.forEach(barcode => {
+                    if (barcode.stockType === '赊销') {
+                        creditCount++;
+                    } else if (barcode.stockType === '门店自有') {
+                        distributionCount++;
+                    }
+                });
+            });
+            
+            // 跳转到收货完成页面，并传递收货数量
+            window.location.href = `receipt_complete.html?count=${totalCount}&credit=${creditCount}&distribution=${distributionCount}`;
+        }
+
+        // 点击弹窗外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('reasonModal');
+            if (event.target === modal) {
+                closeReasonModal();
+            }
+        };
+    </script>
+</body>
+</html>

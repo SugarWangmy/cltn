@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店务通门店系统 - 结算单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 200px;
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b81;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #f8f9fa;
+            color: #ff6b81;
+        }
+
+        .nav-link.active {
+            background: #fff0f2;
+            color: #ff6b81;
+            border-left: 3px solid #ff6b81;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ff6b81;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* 搜索区域 */
+        .search-area {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #ff6b81;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff526d;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* 结算单表格 */
+        .settlement-table {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead th {
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            background: #f8f9fa;
+            font-size: 14px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .data-table tbody td {
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-link {
+            padding: 0;
+            background: none;
+            color: #ff6b81;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+            transition: all 0.3s ease;
+        }
+
+        .btn-link:hover {
+            color: #ff526d;
+        }
+
+
+
+        .btn-primary {
+            padding: 8px 20px;
+            background: #ff6b81;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #ff526d;
+        }
+
+        /* 分页器 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .page-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            border-color: #ff6b81;
+            color: #ff6b81;
+        }
+
+        .page-btn.active {
+            background: #ff6b81;
+            color: white;
+            border-color: #ff6b81;
+        }
+
+        /* 业务规则 */
+        .business-rules {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .rules-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .rules-list {
+            list-style: none;
+        }
+
+        .rule-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .rule-item strong {
+            color: #ff6b81;
+        }
+
+        /* 支付弹窗 */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 30px;
+        }
+
+        .payment-modal.active {
+            right: 0;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .qr-code img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .payment-tip {
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .backdrop.active {
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100px;
+            }
+
+            .nav-link span {
+                display: none;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .settlement-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">CHLITINA</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        <span>客户</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>预约</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>收银</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        <span>商品</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <span>库存</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>报表</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 8px;">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>设置</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部导航 -->
+            <div class="top-nav">
+                <h1 class="page-title">报表 > 结算单</h1>
+                <div class="user-info">
+                    <!-- <button class="btn btn-primary" onclick="goToStorePayment()">去店长商城支付</button> -->
+                    <span>测试门店</span>
+                    <div class="user-avatar">R</div>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-area" style="display: flex; gap: 30px; margin-bottom: 20px;">
+                <div class="stat-item">
+                    <span>待支付：</span>
+                    <span style="color: #ff6b81; font-weight: bold; font-size: 18px;">1</span>
+                    <span>张结算单</span>
+                </div>
+                <div class="stat-item">
+                    <span>逾期未支付：</span>
+                    <span style="color: #ff6b81; font-weight: bold; font-size: 18px;">1</span>
+                    <span>张结算单</span>
+                </div>
+            </div>
+
+            <!-- 结算单表格 -->
+            <div class="settlement-table">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>结算单号</th>
+                            <th>结算周期</th>
+                            <th>应付金额</th>
+                            <th>实付金额</th>
+                            <th>支付状态</th>
+                            <th>结算日期</th>
+                            <th>支付时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SETTLE20260426001</td>
+                            <td>2026-02-26 至 2026-03-25</td>
+                            <td>¥12,850.00</td>
+                            <td>¥0.00</td>
+                            <td><span class="status-tag status-pending">待支付</span></td>
+                            <td>2026-04-26</td>
+                            <td>-</td>
+                            <td>
+                                <a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a>
+                                <a href="#" class="btn-link" onclick="paySettlement('SETTLE20260426001')" style="margin-left: 10px;">支付</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>SETTLE20260326001</td>
+                            <td>2026-01-26 至 2026-02-25</td>
+                            <td>¥10,500.00</td>
+                            <td>¥10,500.00</td>
+                            <td><span class="status-tag status-paid">已支付</span></td>
+                            <td>2026-03-26</td>
+                            <td>2026-03-28 10:30:21</td>
+                            <td><a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a></td>
+                        </tr>
+                        <tr>
+                            <td>SETTLE20260226001</td>
+                            <td>2025-12-26 至 2026-01-25</td>
+                            <td>¥15,600.00</td>
+                            <td>¥0.00</td>
+                            <td><span class="status-tag status-overdue">逾期未付款</span></td>
+                            <td>2026-02-26</td>
+                            <td>-</td>
+                            <td>
+                                <a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a>
+                                <a href="#" class="btn-link" onclick="paySettlement('SETTLE20260226001')" style="margin-left: 10px;">支付</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>SETTLE20260126001</td>
+                            <td>2025-11-26 至 2025-12-25</td>
+                            <td>¥8,750.00</td>
+                            <td>¥8,750.00</td>
+                            <td><span class="status-tag status-paid">已支付</span></td>
+                            <td>2026-01-26</td>
+                            <td>2026-01-26 11:30:21</td>
+                            <td><a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a></td>
+                        </tr>
+                        <tr>
+                            <td>SETTLE20251226001</td>
+                            <td>2025-10-26 至 2025-11-25</td>
+                            <td>¥11,200.00</td>
+                            <td>¥11,200.00</td>
+                            <td><span class="status-tag status-paid">已支付</span></td>
+                            <td>2025-12-26</td>
+                            <td>2025-12-26 11:30:21</td>
+                            <td><a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a></td>
+                        </tr>
+                        <tr>
+                            <td>SETTLE20251126001</td>
+                            <td>2025-09-26 至 2025-10-25</td>
+                            <td>¥9,800.00</td>
+                            <td>¥9,800.00</td>
+                            <td><span class="status-tag status-paid">已支付</span></td>
+                            <td>2025-11-26</td>
+                            <td>2025-11-26 11:30:21</td>
+                            <td><a href="pcstore_settlement_product_detail.html" class="btn-link">查看结算单</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- 分页器 -->
+                <div class="pagination">
+                    <span class="page-info">共 14 条数据</span>
+                    <div class="page-controls">
+                        <button class="page-btn">上一页</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">下一页</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            <script>
+                // 跳转到店长商城支付
+                function goToStorePayment() {
+                    // 这里可以添加跳转逻辑，例如跳转到店长商城的支付页面
+                    alert('跳转到店长商城支付页面');
+                    // 实际项目中可以使用 window.location.href 进行跳转
+                    // window.location.href = 'store_payment.html';
+                }
+
+                // 支付结算单
+                function paySettlement(settlementId) {
+                    // 显示支付弹窗
+                    document.getElementById('paymentBackdrop').classList.add('active');
+                    document.getElementById('paymentModal').classList.add('active');
+                    // 这里可以添加支付逻辑，例如根据settlementId获取支付二维码
+                    console.log('支付结算单: ' + settlementId);
+                }
+
+                // 关闭支付弹窗
+                function closePaymentModal() {
+                    document.getElementById('paymentBackdrop').classList.remove('active');
+                    document.getElementById('paymentModal').classList.remove('active');
+                }
+
+                // 点击遮罩层关闭弹窗
+                document.getElementById('paymentBackdrop').addEventListener('click', function() {
+                    closePaymentModal();
+                });
+            </script>
+        </main>
+    </div>
+
+    <!-- 支付弹窗 -->
+    <div class="backdrop" id="paymentBackdrop"></div>
+    <div class="payment-modal" id="paymentModal">
+        <div class="modal-header">
+            <h2 class="modal-title">结算单支付</h2>
+            <button class="close-btn" onclick="closePaymentModal()">×</button>
+        </div>
+        <div class="qr-code-container">
+            <div class="qr-code">
+                <!-- 这里可以放二维码图片 -->
+                <div style="font-size: 14px; color: #999;">二维码</div>
+            </div>
+            <div class="payment-tip">请扫码完成支付</div>
+        </div>
+    </div>
+</body>
+</html>

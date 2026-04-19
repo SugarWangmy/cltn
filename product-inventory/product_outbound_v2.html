@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商品出库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 顶部导航 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 16px;
+            padding: 8px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+
+
+        /* 提示框 */
+        .info-box {
+            background-color: #fff9e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #666666;
+        }
+
+        /* 添加方式 */
+        .add-methods {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .add-method {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            justify-content: center;
+        }
+
+        .add-method:active {
+            background-color: #f5f5f5;
+            transform: scale(0.98);
+        }
+
+        .method-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .scan-icon {
+            background-color: #ffe6e6;
+        }
+
+        .manual-icon {
+            background-color: #ffe6e6;
+        }
+
+        .linear-icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .method-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .method-desc {
+            font-size: 12px;
+            color: #666666;
+            text-align: center;
+        }
+
+        /* 商品卡片 */
+        .product-card {
+            width: 100%;
+            border: 1px solid #ff6b81;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: linear-gradient(to bottom, #FDF7F9, #ffffff);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .product-header {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+            flex: 1;
+            line-height: 1.4;
+            text-align: left;
+            margin-right: 12px;
+        }
+
+        .product-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-spec {
+            font-size: 13px;
+            color: #666666;
+            text-align: left;
+        }
+
+        .product-total {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            gap: 8px;
+        }
+
+        .product-total-label {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .product-total-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b81;
+        }
+
+        .quantity-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .quantity-label {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .quantity-editor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .barcode-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 0;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .barcode-summary-label {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .barcode-count {
+            font-size: 14px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            background: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-btn:active {
+            background: #f5f5f5;
+        }
+
+        .qty-input {
+            width: 60px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .barcode-details {
+            width: 100%;
+        }
+
+        .barcode-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 0.8fr 0.5fr;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 12px;
+            color: #333333;
+            align-items: center;
+        }
+
+        .barcode-row:last-child {
+            border-bottom: none;
+        }
+
+        .stock-type {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .stock-type.credit {
+            background: #fff2e8;
+            color: #fa8c16;
+        }
+
+        .stock-type.distribution {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:active {
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 10px;
+            border: 1px dashed #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            min-height: 200px;
+        }
+
+        .empty-state > div:not(.empty-header) {
+            align-self: center;
+            width: 100%;
+            text-align: center;
+        }
+
+        .empty-icon {
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+            color: #999999;
+            text-align: center;
+        }
+
+        .empty-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .edit-button {
+            background: none;
+            border: none;
+            color: #ff6b81;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .item-count {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            border: 1px solid #ff6b81;
+            color: #ff6b81;
+        }
+
+        .btn-primary {
+            background-color: #ff6b81;
+            border: 1px solid #ff6b81;
+            color: #ffffff;
+        }
+
+        .btn:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 30% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999999;
+            padding: 4px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .barcode-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .barcode-input:focus {
+            outline: none;
+            border-color: #ff6b81;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 开关样式 */
+        .toggle-switch {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-switch-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333333;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #ff6b81;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* 订单选择样式 - 底部弹窗 */
+        .order-select-container {
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .order-select-button {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            text-align: left;
+            color: #333333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            padding-right: 48px;
+        }
+
+        .order-select-button:hover {
+            border-color: #ff6b81;
+            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.1);
+        }
+
+        .order-select-button:focus {
+            outline: none;
+            border-color: #ff6b81;
+            box-shadow: 0 0 0 3px rgba(255, 107, 129, 0.15);
+        }
+
+        .order-select-button::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #ff6b81;
+        }
+
+        /* 弹窗样式 - 与出库原因弹窗一致 */
+        .order-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .order-modal-content {
+            background-color: #ffffff;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .order-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .order-modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+        }
+
+        .order-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999999;
+            padding: 4px;
+        }
+
+        .order-modal-body {
+            margin-bottom: 20px;
+        }
+
+        .order-option {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .order-option:last-child {
+            border-bottom: none;
+        }
+
+        .order-option.selected {
+            color: #ff6b81;
+        }
+
+        .radio-button {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-button.selected {
+            border-color: #ff6b81;
+            background-color: #ff6b81;
+        }
+
+        .radio-button.selected::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .order-option-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        .order-modal-footer {
+            display: flex;
+            justify-content: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .order-modal-confirm {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #ff6b81;
+            border: 1px solid #ff6b81;
+            color: #ffffff;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .order-modal-confirm:hover {
+            background-color: #ff526b;
+        }
+
+        .order-modal-confirm:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 375px) {
+            .order-select-button {
+                padding: 14px 16px;
+                font-size: 14px;
+                padding-right: 44px;
+            }
+            
+            .order-modal {
+                height: 65%;
+            }
+            
+            .order-option {
+                padding: 14px;
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 375px) {
+            .add-methods {
+                flex-direction: column;
+            }
+            
+            .add-method {
+                flex-direction: row;
+                min-height: 80px;
+                padding: 12px;
+            }
+            
+            .method-icon {
+                margin-bottom: 0;
+                margin-right: 12px;
+            }
+            
+            .method-content {
+                flex: 1;
+                text-align: left;
+            }
+            
+            .barcode-row {
+                font-size: 11px;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <button class="back-button" onclick="goBack()">
+            <svg class="linear-icon" style="width: 20px; height: 20px; color: #333333;" viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <h1 class="page-title">商品出库</h1>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 提示框 -->
+        <div class="info-box">
+            <p>扫描添加商品时，请扫描产品包装盒上的二维码，系统将自动识别并添加，支持连续扫描多个商品。</p>
+        </div>
+
+        <!-- 登记订单出库清单开关 -->
+        <div class="toggle-switch">
+            <div class="toggle-switch-header">
+                <span class="toggle-label">登记订单出库清单</span>
+                <label class="toggle">
+                    <input type="checkbox" id="orderToggle" onchange="toggleOrderSelection()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="font-size: 12px; color: #999999; line-height: 1.4;">若要为某个订单出库商品，请先打开开关，再选择对应订单，然后添加商品。请注意：本次操作不会扣减库存。</div>
+        </div>
+
+        <!-- 订单选择容器 -->
+        <div class="order-select-container" id="orderSelectContainer">
+            <label class="order-select-label">选择订单</label>
+            <button class="order-select-button" onclick="openOrderModal()" id="orderSelectButton">请选择订单</button>
+        </div>
+
+        <!-- 订单选择弹窗 -->
+        <div class="order-modal" id="orderModal">
+            <div class="order-modal-content">
+                <div class="order-modal-header">
+                    <h3>请选择订单</h3>
+                    <button class="order-modal-close" onclick="closeOrderModal()">&times;</button>
+                </div>
+                <div class="order-modal-body">
+                    <div class="order-option" onclick="selectOrder('2026041210300012345', this)">
+                        <div class="radio-button"></div>
+                        <span class="order-option-label">2026041210300012345 - 2026-04-12</span>
+                    </div>
+                    <div class="order-option" onclick="selectOrder('2026041115450067890', this)">
+                        <div class="radio-button"></div>
+                        <span class="order-option-label">2026041115450067890 - 2026-04-11</span>
+                    </div>
+                    <div class="order-option" onclick="selectOrder('2026041009150024680', this)">
+                        <div class="radio-button"></div>
+                        <span class="order-option-label">2026041009150024680 - 2026-04-10</span>
+                    </div>
+                </div>
+                <div class="order-modal-footer">
+                    <button class="order-modal-confirm" onclick="confirmOrderSelection()">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加方式 -->
+        <div class="add-methods">
+            <div class="add-method" onclick="scanAdd()">
+                <div class="method-icon manual-icon">
+                    <svg class="linear-icon" style="color: #ff6b81;" viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="method-content">
+                    <div class="method-title">扫描添加</div>
+                </div>
+            </div>
+            <div class="add-method" onclick="manualInput()">
+                <div class="method-icon manual-icon">
+                    <svg class="linear-icon" style="color: #ff6b81;" viewBox="0 0 24 24">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </div>
+                <div class="method-content">
+                    <div class="method-title">输入条码</div>
+                </div>
+            </div>
+            <div class="add-method" onclick="manualAdd()">
+                <div class="method-icon scan-icon">
+                    <svg class="linear-icon" style="color: #ff6b81;" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="method-content">
+                    <div class="method-title">手动选择</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state">
+            <div class="empty-header">
+                <div class="empty-title">出库清单</div>
+                <button class="edit-button" onclick="editItems()">编辑</button>
+            </div>
+            <div class="empty-icon">
+                <svg class="linear-icon" style="width: 48px; height: 48px; color: #e0e0e0;" viewBox="0 0 24 24">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <div class="empty-desc">您还未添加任何商品</div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+        <div class="item-count">共计 0</div>
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="saveDraft()">暂存</button>
+            <button class="btn btn-primary" onclick="confirmOutbound()">确认出库</button>
+        </div>
+    </div>
+
+    <!-- 手动输入弹窗 -->
+    <div class="modal" id="manualInputModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>手动输入商品条码</h3>
+                <button class="close-btn" onclick="closeManualInputModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="text" id="barcodeInput" placeholder="请输入商品条码" class="barcode-input">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeManualInputModal()">关闭</button>
+                <button class="btn btn-primary" onclick="confirmBarcodeInput()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 商品 mockup 数据
+        const mockProducts = [
+            { id: 1, name: '图朵拉蕴悦香氛美肤油30ml', specification: '30ml', category: '护肤类' },
+            { id: 2, name: '图朵拉保湿精华液50ml', specification: '50ml', category: '护肤类' },
+            { id: 3, name: '图朵拉焕采面霜50g', specification: '50g', category: '护肤类' },
+            { id: 4, name: '图朵拉洁面乳100ml', specification: '100ml', category: '清洁类' },
+            { id: 5, name: '图朵拉防晒霜50ml', specification: '50ml', category: '防晒类' }
+        ];
+
+        // 已添加的出库商品列表
+        let outboundProducts = [];
+        
+        // 订单关联状态
+        let isOrderLinked = false;
+        // 选中的订单
+        let selectedOrder = null;
+
+        // 返回按钮功能
+        function goBack() {
+            window.history.back();
+        }
+
+        // 扫描添加功能
+        function scanAdd() {
+            // 随机选择一个商品
+            const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
+            // 生成批次号和条码
+            const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const barcode = '690' + String(randomProduct.id).padStart(9, '0') + Math.floor(Math.random() * 10);
+            // 随机库存类型
+            const stockType = Math.random() > 0.5 ? '赊销' : '门店自有';
+            
+            addProductToList(randomProduct, batchNo, barcode, stockType);
+        }
+
+        // 手动输入功能
+        function manualInput() {
+            // 显示手动输入弹窗
+            document.getElementById('manualInputModal').style.display = 'block';
+            // 聚焦到输入框
+            document.getElementById('barcodeInput').focus();
+        }
+
+        // 关闭手动输入弹窗
+        function closeManualInputModal() {
+            document.getElementById('manualInputModal').style.display = 'none';
+            // 清空输入框
+            document.getElementById('barcodeInput').value = '';
+        }
+
+        // 确认手动输入
+        function confirmBarcodeInput() {
+            const barcode = document.getElementById('barcodeInput').value.trim();
+            if (barcode) {
+                const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
+                const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                const stockType = Math.random() > 0.5 ? '赊销' : '门店自有';
+                addProductToList(randomProduct, batchNo, barcode, stockType);
+                // 关闭弹窗
+                closeManualInputModal();
+            }
+        }
+
+        // 手动选择功能
+        function manualAdd() {
+            // 创建特定商品
+            const selectedProduct = {
+                id: 999, // 唯一ID
+                name: 'E.P.O.保湿乳液-清爽型100ml',
+                specification: '100ml/瓶',
+                quantity: 2, // 手动选择数量
+                barcodes: [] // 空条码记录
+            };
+            
+            // 检查商品是否已存在
+            let existingProduct = outboundProducts.find(p => p.id === selectedProduct.id);
+            
+            if (existingProduct) {
+                // 如果商品已存在，更新数量
+                existingProduct.quantity = selectedProduct.quantity;
+            } else {
+                // 如果商品不存在，添加到列表
+                outboundProducts.push(selectedProduct);
+            }
+            
+            renderProductList();
+            updateItemCount();
+        }
+
+        // 添加商品到列表
+        function addProductToList(product, batchNo, barcode, stockType) {
+            // 检查商品是否已存在
+            let existingProduct = outboundProducts.find(p => p.id === product.id);
+            
+            if (existingProduct) {
+                // 增加数量并添加条码明细
+                existingProduct.quantity++;
+                existingProduct.barcodes.push({
+                    batchNo: batchNo,
+                    barcode: barcode,
+                    stockType: stockType
+                });
+            } else {
+                // 创建新商品记录
+                outboundProducts.push({
+                    id: product.id,
+                    name: product.name,
+                    specification: product.specification,
+                    quantity: 1,
+                    barcodes: [{
+                        batchNo: batchNo,
+                        barcode: barcode,
+                        stockType: stockType
+                    }]
+                });
+            }
+            
+            renderProductList();
+            updateItemCount();
+        }
+
+        // 渲染商品列表
+        function renderProductList() {
+            const container = document.querySelector('.empty-state');
+            
+            if (outboundProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-header">
+                        <div class="empty-title">已添加的出库商品</div>
+                        <button class="edit-button" onclick="editItems()">编辑</button>
+                    </div>
+                    <div class="empty-icon">
+                        <svg class="linear-icon" style="width: 48px; height: 48px; color: #e0e0e0;" viewBox="0 0 24 24">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="empty-desc">您还未添加任何商品</div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="empty-header">
+                    <div class="empty-title">已添加的出库商品</div>
+                    <button class="edit-button" onclick="editItems()">编辑</button>
+                </div>
+            `;
+            
+            outboundProducts.forEach((product, index) => {
+                const barcodeCount = product.barcodes.length;
+                const subtotal = product.quantity + barcodeCount;
+                html += `
+                    <div class="product-card" data-index="${index}">
+                        <div class="product-header">
+                            <div class="product-header-row">
+                                <div class="product-name">${product.name}</div>
+                            </div>
+                            <div class="product-info-row">
+                                <div class="product-spec">${product.specification}</div>
+                                <div class="product-total">
+                                    <span class="product-total-label">小计</span>
+                                    <span class="product-total-value">${subtotal}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">手动选择数量</span>
+                            <div class="quantity-editor">
+                                <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                                <input type="number" class="qty-input" value="${product.quantity}" min="1" onchange="updateQuantity(${index}, this.value)">
+                                <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="barcode-summary-row">
+                            <span class="barcode-summary-label">扫描/输入条码明细</span>
+                            <span class="barcode-count">${barcodeCount}件</span>
+                        </div>
+                        <div class="barcode-details">
+                            ${product.barcodes.length > 0 ? product.barcodes.map((barcode, barcodeIndex) => `
+                                <div class="barcode-row">
+                                    <span>${barcode.batchNo}</span>
+                                    <span>${barcode.barcode}</span>
+                                    <span class="stock-type ${barcode.stockType === '赊销' ? 'credit' : 'distribution'}">${barcode.stockType}</span>
+                                    <button class="delete-btn" onclick="deleteBarcode(${index}, ${barcodeIndex})"><svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                </div>
+                            `).join('') : `<div style="text-align: center; padding: 12px; color: #999999; font-size: 14px;">未扫描商品</div>`}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 修改数量
+        function changeQuantity(index, delta) {
+            const product = outboundProducts[index];
+            const newQuantity = product.quantity + delta;
+            if (newQuantity >= 1) {
+                product.quantity = newQuantity;
+                // 同步条码数量与手动输入数量
+                syncBarcodeQuantity(product);
+                renderProductList();
+                updateItemCount();
+            }
+        }
+
+        // 更新数量
+        function updateQuantity(index, value) {
+            const quantity = parseInt(value);
+            if (quantity >= 1) {
+                outboundProducts[index].quantity = quantity;
+                // 同步条码数量与手动输入数量
+                syncBarcodeQuantity(outboundProducts[index]);
+                renderProductList();
+                updateItemCount();
+            }
+        }
+
+        // 同步条码数量与手动输入数量
+        function syncBarcodeQuantity(product) {
+            const currentBarcodeCount = product.barcodes.length;
+            const targetQuantity = product.quantity;
+            
+            if (targetQuantity > currentBarcodeCount) {
+                // 需要添加条码
+                const diff = targetQuantity - currentBarcodeCount;
+                for (let i = 0; i < diff; i++) {
+                    const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(currentBarcodeCount + i).padStart(3, '0');
+                    const barcode = '690' + String(product.id).padStart(9, '0') + Math.floor(Math.random() * 10);
+                    const stockType = Math.random() > 0.5 ? '赊销' : '门店自有';
+                    product.barcodes.push({
+                        batchNo: batchNo,
+                        barcode: barcode,
+                        stockType: stockType
+                    });
+                }
+            } else if (targetQuantity < currentBarcodeCount) {
+                // 需要删除多余的条码
+                product.barcodes.splice(targetQuantity);
+            }
+        }
+
+        // 删除条码
+        function deleteBarcode(productIndex, barcodeIndex) {
+            const product = outboundProducts[productIndex];
+            product.barcodes.splice(barcodeIndex, 1);
+            
+            // 同步手动输入数量
+            product.quantity = product.barcodes.length;
+            
+            // 如果没有条码了，删除整个商品
+            if (product.barcodes.length === 0) {
+                outboundProducts.splice(productIndex, 1);
+            }
+            
+            renderProductList();
+            updateItemCount();
+        }
+
+        // 更新商品计数
+        function updateItemCount() {
+            const totalCount = outboundProducts.reduce((sum, p) => {
+                const subtotal = p.quantity + p.barcodes.length;
+                return sum + subtotal;
+            }, 0);
+            document.querySelector('.item-count').textContent = `共计 ${totalCount}`;
+        }
+
+        // 编辑功能
+        function editItems() {
+            alert('编辑功能已触发');
+            // 这里可以添加实际的编辑功能
+        }
+
+        // 暂存功能
+        function saveDraft() {
+            alert('暂存功能已触发');
+            // 这里可以添加实际的暂存功能
+        }
+
+        // 切换订单选择
+        function toggleOrderSelection() {
+            const toggle = document.getElementById('orderToggle');
+            const orderSelectContainer = document.getElementById('orderSelectContainer');
+            isOrderLinked = toggle.checked;
+            
+            if (isOrderLinked) {
+                orderSelectContainer.style.display = 'block';
+            } else {
+                orderSelectContainer.style.display = 'none';
+                selectedOrder = null;
+                document.getElementById('orderSelectButton').textContent = '请选择订单';
+            }
+        }
+
+        // 选中的订单值
+        let selectedOrderValue = null;
+
+        // 打开订单选择弹窗
+        function openOrderModal() {
+            document.getElementById('orderModal').style.display = 'block';
+        }
+
+        // 关闭订单选择弹窗
+        function closeOrderModal() {
+            document.getElementById('orderModal').style.display = 'none';
+        }
+
+        // 选择订单
+        function selectOrder(orderValue, element) {
+            // 清除所有选中状态
+            const options = document.querySelectorAll('.order-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                const radio = option.querySelector('.radio-button');
+                radio.classList.remove('selected');
+            });
+            
+            // 设置当前选中状态
+            element.classList.add('selected');
+            const radio = element.querySelector('.radio-button');
+            radio.classList.add('selected');
+            
+            selectedOrderValue = orderValue;
+        }
+
+        // 确认订单选择
+        function confirmOrderSelection() {
+            if (selectedOrderValue) {
+                selectedOrder = selectedOrderValue;
+                // 获取选中的订单标签
+                const selectedOption = document.querySelector('.order-option.selected');
+                if (selectedOption) {
+                    const orderLabel = selectedOption.querySelector('.order-option-label').textContent;
+                    document.getElementById('orderSelectButton').textContent = orderLabel;
+                }
+                closeOrderModal();
+            } else {
+                alert('请选择订单');
+            }
+        }
+
+        // 确认出库功能
+        function confirmOutbound() {
+            if (outboundProducts.length === 0) {
+                alert('请先添加商品');
+                return;
+            }
+            
+            // 检查订单关联状态
+            if (isOrderLinked) {
+                if (!selectedOrder) {
+                    alert('请选择订单');
+                    return;
+                }
+            }
+            
+            // 准备出库数据
+            const outboundData = {
+                products: outboundProducts,
+                isOrderLinked: isOrderLinked,
+                selectedOrder: selectedOrder,
+                outboundReason: isOrderLinked ? '销售出库' : null
+            };
+            
+            // 跳转到确认出库页面，并传递商品数据
+            const dataJson = JSON.stringify(outboundData);
+            const encodedData = encodeURIComponent(dataJson);
+            window.location.href = `confirm_outbound.html?data=${encodedData}`;
+        }
+    </script>
+</body>
+</html>

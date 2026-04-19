@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美容院线APP - 出入库功能原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .page {
+            display: none;
+            position: absolute;
+            top: 44px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .header {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .welcome-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e8e8e8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:active {
+            transform: scale(0.98);
+        }
+
+        .menu-item .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .menu-item .icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .menu-item .label {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .menu-item.pink .icon { background: #fce4ec; }
+        .menu-item.pink .icon svg { stroke: #ec407a; }
+        .menu-item.orange .icon { background: #fbe9e7; }
+        .menu-item.orange .icon svg { stroke: #e64a19; }
+        .menu-item.blue .icon { background: #e3f2fd; }
+        .menu-item.blue .icon svg { stroke: #1976d2; }
+        .menu-item.green .icon { background: #e8f5e9; }
+        .menu-item.green .icon svg { stroke: #43a047; }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ec407a, #e64a19);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+            padding: 15px 0;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .product-group-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .product-list-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+            padding-bottom: 10px;
+        }
+
+        .step-container {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .step-container.active {
+            display: flex;
+        }
+
+        .step-header {
+            flex-shrink: 0;
+            margin-bottom: 15px;
+        }
+
+        .scan-area {
+            flex-shrink: 0;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .list-header {
+            flex-shrink: 0;
+            margin-bottom: 10px;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .success-message .icon {
+            width: 80px;
+            height: 80px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #fff;
+            font-size: 40px;
+        }
+
+        .success-message .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .success-message .desc {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .home-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .type-info-box {
+            flex-shrink: 0;
+            padding: 12px 15px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .type-info-box .label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .type-info-box .value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .withdraw-btn {
+            background: #ffebee;
+            border: 1px solid #e53935;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #e53935;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .category-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .category-item:hover {
+            background: #f0f0f0;
+        }
+
+        .category-item.active {
+            background: #ec407a;
+            color: #fff;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .product-card:hover {
+            border-color: #ec407a;
+            box-shadow: 0 2px 8px rgba(236, 64, 122, 0.1);
+        }
+
+        .product-card-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .product-card-spec {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .product-card-stock {
+            font-size: 14px;
+            color: #ec407a;
+            font-weight: bold;
+        }
+
+        .add-icon {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            background: #f8b1c3;
+            transition: all 0.2s;
+        }
+
+        .add-icon:hover {
+            background: #ef9bb1;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="status-bar">
+            <span>00:50</span>
+            <span>📶 100</span>
+        </div>
+
+        <div id="page-home" class="page active">
+            <div class="page-content">
+                <div class="header">
+                    <div class="avatar">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="welcome-text">你好，roger</div>
+                </div>
+
+                <div class="home-content">
+                    <div class="section-title">店务管理</div>
+                    <div class="grid-2">
+                        <div class="menu-item orange">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="1" y="3" width="15" height="13"></rect>
+                                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                </svg>
+                            </div>
+                            <div class="label">商城收货</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">库存管理</div>
+                    <div class="grid-2">
+                        <div class="menu-item pink" onclick="showPage('page-outbound')">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </div>
+                            <div class="label">商品出库</div>
+                        </div>
+                        <div class="menu-item green" onclick="showPage('page-inventory')">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </div>
+                            <div class="label">库存查询</div>
+                        </div>
+                        <div class="menu-item blue" onclick="showPage('page-outbound-history')">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="label">出库记录</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">日常经营</div>
+                    <div class="grid-2">
+                        <div class="menu-item" style="background: #fce4ec;">
+                            <div class="icon" style="background: #fce4ec;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#ec407a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    <line x1="9" y1="21" x2="9" y2="10"></line>
+                                </svg>
+                            </div>
+                            <div class="label">服务预约</div>
+                        </div>
+                        <div class="menu-item" style="background: #fbe9e7;">
+                            <div class="icon" style="background: #fbe9e7;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#e64a19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="label">服务日志</div>
+                        </div>
+                        <div class="menu-item" style="background: #e3f2fd;">
+                            <div class="icon" style="background: #e3f2fd;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                </svg>
+                            </div>
+                            <div class="label">物品寄存</div>
+                        </div>
+                        <div class="menu-item" style="background: #ede7f6;">
+                            <div class="icon" style="background: #ede7f6;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#7e57c2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                            <div class="label">今日台账</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-outbound" class="page">
+            <div class="page-content">
+                <div class="top-bar">
+                    <div class="back-btn" onclick="showPage('page-home')">
+                        <span>←</span>
+                        <span>返回首页</span>
+                    </div>
+                </div>
+
+                <div id="outbound-step-1" class="step-container active">
+                    <div class="step-header">
+                        <div class="step-title">第一步：选择出库类型</div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-label">出库类型</div>
+                        <select class="form-select" id="outbound-type">
+                            <option value="">请选择出库类型</option>
+                            <option value="loss">盘亏出库</option>
+                            <option value="use">领用出库</option>
+                            <option value="transfer">调拨出库</option>
+                            <option value="other">其他出库</option>
+                            <option value="ingredient">配料出库</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="nextOutboundStep()">下一步</button>
+                    </div>
+                </div>
+
+                <div id="outbound-step-2" class="step-container">
+                    <div class="step-header">
+                        <div class="step-title">第二步：选择商品</div>
+                        <div class="step-desc">请选择商品添加方式</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <button class="btn btn-secondary" onclick="continuousScan('outbound')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            <div style="text-align: left;">
+                                <div style="font-size: 14px; font-weight: bold;">扫描商品</div>
+                                <div style="font-size: 11px; color: #999; margin-top: 2px;">点击后唤起相机</div>
+                            </div>
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="showManualInputDialog()" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <div style="text-align: left;">
+                                <div style="font-size: 14px; font-weight: bold;">手动输入</div>
+                                <div style="font-size: 11px; color: #999; margin-top: 2px;">输入商品唯一码</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="list-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="section-title" style="margin-bottom: 0;">已选商品 <span style="font-size: 12px; color: #999;">(共 <span id="outbound-selected-count">0</span> 件)</span></div>
+                        <button class="withdraw-btn" onclick="showWithdrawScanDialog('outbound')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"></path>
+                                <polyline points="8 8 12 4 16 8"></polyline>
+                                <line x1="12" y1="4" x2="12" y2="16"></line>
+                            </svg>
+                            扫描撤回出库
+                        </button>
+                    </div>
+                    
+                    <div class="product-list-container" id="outbound-product-list"></div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevOutboundStep()">上一步</button>
+                        <button class="btn btn-primary" onclick="nextOutboundStep()">下一步</button>
+                    </div>
+                </div>
+
+                <div id="outbound-step-3" class="step-container">
+                    <div class="step-header">
+                        <div class="step-title">第三步：确认出库</div>
+                        <div class="step-desc">请确认出库信息无误后提交</div>
+                    </div>
+                    
+                    <div class="type-info-box">
+                        <span class="label">出库类型：</span>
+                        <span class="value" id="outbound-type-display">-</span>
+                    </div>
+                    
+                    <div class="list-header">
+                        <div class="section-title" style="margin-bottom: 0;">出库商品明细 <span style="font-size: 12px; color: #999;">(共 <span id="outbound-confirm-count">0</span> 件)</span></div>
+                    </div>
+                    
+                    <div class="product-list-container" id="outbound-confirm-list"></div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevOutboundStep()">上一步</button>
+                        <button class="btn btn-primary" onclick="confirmOutbound()">确认出库</button>
+                    </div>
+                </div>
+
+                <div id="outbound-success" class="step-container">
+                    <div class="success-message">
+                        <div class="icon">✓</div>
+                        <div class="title">出库成功！</div>
+                        <div class="desc">库存已更新</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="showPage('page-home')">返回首页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="page-inventory" class="page">
+            <div class="page-content">
+                <div class="top-bar">
+                    <div class="back-btn" onclick="showPage('page-home')">
+                        <span>←</span>
+                        <span>返回首页</span>
+                    </div>
+                </div>
+
+                <div class="step-header">
+                    <div class="step-title">库存查询</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">商品名称</div>
+                    <input type="text" class="form-select" id="inventory-search-input" placeholder="请输入商品名称" style="padding: 15px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-secondary" onclick="simulateScanForInventory()" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        扫描商品
+                    </button>
+                    <button class="btn btn-primary" onclick="searchInventory()" style="flex: 1;">查询库存</button>
+                </div>
+
+                <div id="inventory-result" style="display: none;">
+                    <div class="section-title" style="margin-bottom: 15px;">查询结果</div>
+                    <div class="product-group-card">
+                        <div style="padding: 15px; background: #f5f5f5; border-bottom: 1px solid #e8e8e8;">
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;" id="inventory-product-name">-</div>
+                            <div style="display: flex; gap: 20px; font-size: 13px; color: #666; flex-wrap: wrap;">
+                                <span>商品分类：<span id="inventory-category" style="color: #333;">-</span></span>
+                                <span>当前库存：<span id="inventory-stock" style="color: #ec407a; font-weight: bold;">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="inventory-no-result" style="display: none; text-align: center; padding: 40px 20px; color: #999;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <div>未找到相关商品</div>
+                </div>
+
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <div class="section-title" style="margin-bottom: 15px;">快捷操作</div>
+                    <div class="grid-2">
+                        <div class="menu-item pink" onclick="showPage('page-outbound')">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </div>
+                            <div class="label">商品出库</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="page-product-list" class="page">
+            <div class="page-content">
+                <div class="top-bar">
+                    <div class="back-btn" onclick="goBackToOutboundStep2()">
+                        <span>←</span>
+                        <span>返回选择商品</span>
+                    </div>
+                </div>
+
+                <div class="step-header">
+                    <div class="step-title">商品列表</div>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-select" id="product-list-search" placeholder="请输入商品名称搜索" style="padding: 15px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div style="display: flex; gap: 15px; flex: 1; min-height: 0;">
+                    <div style="width: 120px; flex-shrink: 0; background: #f5f5f5; border-radius: 8px; padding: 15px; overflow-y: auto;">
+                        <div class="section-title" style="margin-bottom: 15px;">商品分类</div>
+                        <div id="category-list">
+                            <div class="category-item active" onclick="selectCategory('all')">全部</div>
+                            <div class="category-item" onclick="selectCategory('护肤类')">护肤类</div>
+                            <div class="category-item" onclick="selectCategory('清洁类')">清洁类</div>
+                            <div class="category-item" onclick="selectCategory('防晒类')">防晒类</div>
+                            <div class="category-item" onclick="selectCategory('彩妆类')">彩妆类</div>
+                        </div>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto;">
+                        <div id="product-cards-container" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e8e8e8;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div style="font-size: 14px; color: #666;">已选数量：<span id="selected-count" style="font-size: 16px; font-weight: bold; color: #ec407a;">0</span> 件</div>
+                        <button class="btn btn-secondary" onclick="showSelectedProducts()">查看已选</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="confirmAddProducts()" style="width: 100%; padding: 15px; font-size: 16px;">确定添加</button>
+                </div>
+            </div>
+        </div>
+        <div id="page-outbound-history" class="page">
+            <div class="page-content">
+                <div class="top-bar">
+                    <div class="back-btn" onclick="showPage('page-home')">
+                        <span>←</span>
+                        <span>返回首页</span>
+                    </div>
+                </div>
+
+                <div class="step-header">
+                    <div class="step-title">出库记录</div>
+                </div>
+
+                <div class="form-group">
+                        <div class="form-label">出库类型</div>
+                        <select class="form-select" id="history-type">
+                            <option value="">全部类型</option>
+                            <option value="loss">盘亏出库</option>
+                            <option value="use">领用出库</option>
+                            <option value="transfer">调拨出库</option>
+                            <option value="other">其他出库</option>
+                            <option value="ingredient">配料出库</option>
+                        </select>
+                    </div>
+
+                <div class="form-group">
+                    <div class="form-label">时间范围</div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" class="form-select" id="history-start-date" style="flex: 1;">
+                        <input type="date" class="form-select" id="history-end-date" style="flex: 1;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="searchOutboundHistory()" style="flex: 1;">查询记录</button>
+                    <button class="btn btn-secondary" onclick="resetSearchConditions()" style="flex: 1;">重置条件</button>
+                </div>
+
+                <div class="list-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="section-title" style="margin-bottom: 0;">出库记录 <span style="font-size: 12px; color: #999;">(共 <span id="history-count">0</span> 条)</span></div>
+                </div>
+
+                <div class="product-list-container" id="outbound-history-list">
+                    <div style="text-align: center; padding: 40px 20px; color: #999;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <div>暂无出库记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const outboundData = {
+            type: '',
+            products: []
+        };
+
+        // 商品库存数据
+        const inventoryProducts = [
+            { name: '图朵拉蕴悦香氛美肤油30ml', category: '护肤类', stock: 30 },
+            { name: '图朵拉保湿精华液50ml', category: '护肤类', stock: 25 },
+            { name: '图朵拉焕采面霜50g', category: '护肤类', stock: 20 },
+            { name: '图朵拉洁面乳100ml', category: '清洁类', stock: 40 },
+            { name: '图朵拉防晒霜50ml', category: '防晒类', stock: 15 }
+        ];
+
+        // 商品批次数据库
+        const productBatchDatabase = [
+            { uniqueCode: 'P20260301001', productName: '图朵拉蕴悦香氛美肤油30ml', category: '护肤类', specification: '30ml', batch: 'B20260301' },
+            { uniqueCode: 'P20260302001', productName: '图朵拉保湿精华液50ml', category: '护肤类', specification: '50ml', batch: 'B20260302' },
+            { uniqueCode: 'P20260303001', productName: '图朵拉焕采面霜50g', category: '护肤类', specification: '50g', batch: 'B20260303' },
+            { uniqueCode: 'P20260304001', productName: '图朵拉洁面乳100ml', category: '清洁类', specification: '100ml', batch: 'B20260304' },
+            { uniqueCode: 'P20260305001', productName: '图朵拉防晒霜50ml', category: '防晒类', specification: '50ml', batch: 'B20260305' }
+        ];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            if (pageId === 'page-outbound') {
+                resetOutboundSteps();
+            } else if (pageId === 'page-outbound-history') {
+                resetSearchConditions();
+            } else if (pageId === 'page-product-list') {
+                renderProductCards();
+            }
+        }
+
+        function goBackToOutboundStep2() {
+            // 直接显示出库页面，不调用 showPage 避免重置数据
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('page-outbound').classList.add('active');
+            
+            outboundStep = 2;
+            updateOutboundSteps();
+            renderProductList('outbound');
+            updateOutboundCount();
+        }
+
+        function showManualInputDialog() {
+            const html = `
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <input type="text" id="manual-unique-code" placeholder="请输入商品唯一码" style="width: 100%; padding: 15px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div id="manual-input-error" style="color: #e53935; font-size: 12px; margin-bottom: 20px; display: none;"></div>
+                </div>
+            `;
+            showAppDialog('手动输入商品编码', html, ['取消', '确定'], function() {
+                addManualProductByCode();
+            });
+        }
+
+        function addManualProductByCode() {
+            const uniqueCodeInput = document.getElementById('manual-unique-code');
+            const errorElement = document.getElementById('manual-input-error');
+            
+            if (!uniqueCodeInput || !errorElement) {
+                console.log('无法获取输入框元素');
+                return;
+            }
+            console.log('成功获取输入框元素');
+            console.log('输入框值:', uniqueCodeInput.value);
+            
+            const uniqueCode = uniqueCodeInput.value.trim();
+            
+            // 边界和异常场景处理
+            if (!uniqueCode) {
+                errorElement.textContent = '请输入商品唯一码';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            if (uniqueCode.length < 6) {
+                errorElement.textContent = '唯一码长度不足，请检查输入';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            // 根据唯一码查找商品信息
+            const productInfo = productBatchDatabase.find(item => item.uniqueCode === uniqueCode);
+            
+            if (!productInfo) {
+                errorElement.textContent = '未找到对应商品';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            // 查找商品库存信息
+            const stockInfo = inventoryProducts.find(p => p.name === productInfo.productName);
+            
+            if (!stockInfo) {
+                errorElement.textContent = '商品库存信息不存在';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            // 检查商品是否已在列表中
+            let existingProduct = outboundData.products.find(p => p.name === productInfo.productName);
+            
+            if (existingProduct) {
+                // 添加到已存在的商品中
+                existingProduct.details.push({
+                    batch: productInfo.batch,
+                    uniqueNo: uniqueCode
+                });
+            } else {
+                // 创建新的商品记录
+                const newProduct = {
+                    name: productInfo.productName,
+                    category: productInfo.category,
+                    specification: productInfo.specification,
+                    stock: stockInfo.stock,
+                    details: [{
+                        batch: productInfo.batch,
+                        uniqueNo: uniqueCode
+                    }]
+                };
+                outboundData.products.push(newProduct);
+            }
+            
+            // 更新已选商品列表
+            renderProductList('outbound');
+            updateOutboundCount();
+            
+            // 显示成功提示
+            // showAppAlert('商品添加成功');
+        }
+
+        let outboundStep = 1;
+        
+        function nextOutboundStep() {
+            if (outboundStep === 1) {
+                const typeSelect = document.getElementById('outbound-type');
+                if (!typeSelect.value) {
+                    showAppAlert('请选择出库类型');
+                    return;
+                }
+                outboundData.type = typeSelect.value;
+            }
+            
+            if (outboundStep === 2) {
+                if (outboundData.products.length === 0) {
+                    showAppAlert('请至少扫描一件商品');
+                    return;
+                }
+                renderConfirmList('outbound');
+            }
+            
+            if (outboundStep < 3) {
+                outboundStep++;
+                updateOutboundSteps();
+            }
+        }
+        
+        function prevOutboundStep() {
+            if (outboundStep > 1) {
+                outboundStep--;
+                updateOutboundSteps();
+            }
+        }
+        
+        function updateOutboundSteps() {
+            document.querySelectorAll('[id^="outbound-step-"]').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('outbound-step-' + outboundStep).classList.add('active');
+        }
+        
+        function resetOutboundSteps() {
+            outboundStep = 1;
+            outboundData.type = '';
+            outboundData.products = [];
+            document.getElementById('outbound-type').value = '';
+            document.getElementById('outbound-product-list').innerHTML = '';
+            document.getElementById('outbound-confirm-list').innerHTML = '';
+            
+            document.querySelectorAll('[id^="outbound-step-"]').forEach(el => {
+                el.classList.remove('active');
+            });
+            const successPage = document.getElementById('outbound-success');
+            if (successPage) {
+                successPage.classList.remove('active');
+            }
+            document.getElementById('outbound-step-1').classList.add('active');
+            updateOutboundCount();
+        }
+        
+        function confirmOutbound() {
+            outboundStep = 4;
+            document.querySelectorAll('[id^="outbound-step-"]').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('outbound-success').classList.add('active');
+        }
+
+
+
+
+
+        function showAppAlert(message) {
+            const existingAlert = document.querySelector('.app-alert-overlay');
+            if (existingAlert) existingAlert.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'app-alert-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 999999;
+            `;
+            
+            const alert = document.createElement('div');
+            alert.style.cssText = `
+                background: rgba(0,0,0,0.8);
+                color: #fff;
+                padding: 15px 30px;
+                border-radius: 8px;
+                font-size: 14px;
+            `;
+            alert.textContent = message;
+            
+            overlay.appendChild(alert);
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 1500);
+        }
+
+        function updateOutboundCount() {
+            const totalCount = outboundData.products.reduce((sum, product) => sum + product.details.length, 0);
+            const countElement = document.getElementById('outbound-selected-count');
+            if (countElement) {
+                countElement.textContent = totalCount;
+            }
+        }
+
+        function renderConfirmList(type) {
+            const data = outboundData;
+            const listId = type === 'outbound' ? 'outbound-confirm-list' : 'inbound-confirm-list';
+            const countId = type === 'outbound' ? 'outbound-confirm-count' : 'inbound-confirm-count';
+            const listContainer = document.getElementById(listId);
+            const countElement = document.getElementById(countId);
+            
+            let html = '';
+            let totalCount = 0;
+            
+            data.products.forEach(product => {
+                totalCount += product.details.length;
+                html += `
+                    <div class="product-group-card">
+                        <div style="padding: 15px; background: #f5f5f5; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-size: 16px; font-weight: bold;">${product.name}</div>
+                                <div style="font-size: 13px; color: #666;">${product.details.length}件</div>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 15px; background: #fff;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 10px;">明细：</div>
+                            ${product.details.map(detail => `
+                                <div style="padding: 8px 0; border-bottom: 1px dashed #e8e8e8;">
+                                    <div style="font-size: 13px; color: #666;">
+                                        <div>${detail.batch ? `批次：${detail.batch} | 唯一号：${detail.uniqueNo}` : '手动选择 | 数量：1件'}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = html;
+            if (countElement) {
+                countElement.textContent = totalCount;
+            }
+        }
+
+        function removeProductGroup(index, type) {
+            const data = outboundData;
+            data.products.splice(index, 1);
+            renderProductList(type);
+            updateOutboundCount();
+        }
+
+        function searchInventory() {
+            const input = document.getElementById('inventory-search-input').value.trim();
+            if (!input) {
+                showAppAlert('请输入商品名称');
+                return;
+            }
+            
+            const found = inventoryProducts.find(p => p.name.includes(input));
+            
+            if (found) {
+                document.getElementById('inventory-result').style.display = 'block';
+                document.getElementById('inventory-no-result').style.display = 'none';
+                document.getElementById('inventory-product-name').textContent = found.name;
+                document.getElementById('inventory-category').textContent = found.category;
+                document.getElementById('inventory-stock').textContent = found.stock + '瓶';
+            } else {
+                document.getElementById('inventory-result').style.display = 'none';
+                document.getElementById('inventory-no-result').style.display = 'block';
+            }
+        }
+
+        function simulateScanForInventory() {
+            const randomProduct = inventoryProducts[Math.floor(Math.random() * inventoryProducts.length)];
+            document.getElementById('inventory-search-input').value = randomProduct.name;
+            searchInventory();
+        }
+
+        let scanCounter = 1;
+        
+        function continuousScan(type) {
+            const products = [
+                {name: '图朵拉蕴悦香氛美肤油30ml', stock: 30},
+                {name: '图朵拉保湿精华液50ml', stock: 25},
+                {name: '图朵拉焕采面霜50g', stock: 20}
+            ];
+            const randomProduct = products[Math.floor(Math.random() * products.length)];
+            const batchNo = 'P20260301';
+            const uniqueNo = 'NO.' + (10000000 + scanCounter);
+            
+            addProductItem(randomProduct.name, randomProduct.stock, batchNo, uniqueNo, type);
+            scanCounter++;
+        }
+        
+        function addProductItem(productName, stock, batchNo, uniqueNo, type) {
+            const data = outboundData;
+            
+            let product = data.products.find(p => p.name === productName);
+            
+            if (product) {
+                product.details.push({batch: batchNo, uniqueNo: uniqueNo});
+            } else {
+                product = {
+                    name: productName,
+                    stock: stock,
+                    details: [{batch: batchNo, uniqueNo: uniqueNo}]
+                };
+                data.products.push(product);
+            }
+            
+            renderProductList(type);
+            updateOutboundCount();
+        }
+        
+        // 手动输入商品名称功能
+        const manualProductInput = document.getElementById('manual-product-input');
+        const productDropdown = document.getElementById('product-dropdown');
+        
+        if (manualProductInput) {
+            manualProductInput.addEventListener('input', function() {
+                const inputValue = this.value.trim();
+                if (inputValue.length > 0) {
+                    // 模糊搜索商品
+                    const filteredProducts = inventoryProducts.filter(product => 
+                        product.name.includes(inputValue)
+                    );
+                    
+                    if (filteredProducts.length > 0) {
+                        // 显示下拉选项
+                        productDropdown.innerHTML = '';
+                        filteredProducts.forEach(product => {
+                            const option = document.createElement('div');
+                            option.style.cssText = `
+                                padding: 12px 15px;
+                                border-bottom: 1px solid #e8e8e8;
+                                cursor: pointer;
+                                transition: background-color 0.2s;
+                            `;
+                            option.innerHTML = `
+                                <div style="font-size: 14px; font-weight: 500;">${product.name}</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                                    规格：${product.name.match(/\d+[ml|g]/) ? product.name.match(/\d+[ml|g]/)[0] : '无'} | 分类：${product.category}
+                                </div>
+                                <div style="font-size: 12px; color: #ec407a; margin-top: 2px;">
+                                    当前库存：${product.stock}件
+                                </div>
+                            `;
+                            option.onclick = function() {
+                                addManualProductItem(product);
+                                manualProductInput.value = '';
+                                productDropdown.style.display = 'none';
+                            };
+                            option.onmouseover = function() {
+                                this.style.backgroundColor = '#f5f5f5';
+                            };
+                            option.onmouseout = function() {
+                                this.style.backgroundColor = '#fff';
+                            };
+                            productDropdown.appendChild(option);
+                        });
+                        productDropdown.style.display = 'block';
+                    } else {
+                        productDropdown.style.display = 'none';
+                    }
+                } else {
+                    productDropdown.style.display = 'none';
+                }
+            });
+            
+            // 点击其他地方关闭下拉
+            document.addEventListener('click', function(event) {
+                if (!manualProductInput.contains(event.target) && !productDropdown.contains(event.target)) {
+                    productDropdown.style.display = 'none';
+                }
+            });
+        }
+        
+        function addManualProductItem(product) {
+            const data = outboundData;
+            
+            let existingProduct = data.products.find(p => p.name === product.name);
+            
+            if (existingProduct) {
+                // 手动添加的商品无批次号和唯一码，使用空字符串
+                existingProduct.details.push({batch: '', uniqueNo: ''});
+            } else {
+                const newProduct = {
+                    name: product.name,
+                    stock: product.stock,
+                    details: [{batch: '', uniqueNo: ''}]
+                };
+                data.products.push(newProduct);
+            }
+            
+            renderProductList('outbound');
+            updateOutboundCount();
+        }
+        
+        function renderProductList(type) {
+            const data = outboundData;
+            const listId = 'outbound-product-list';
+            const listContainer = document.getElementById(listId);
+            const countElement = document.getElementById('outbound-selected-count');
+            
+            let html = '';
+            let totalCount = 0;
+            
+            data.products.forEach((product, pIndex) => {
+                totalCount += product.details.length;
+                
+                // 检查是否为手动选择的商品（所有明细都没有批次号）
+                const isManualSelected = product.details.every(detail => !detail.batch);
+                // 检查是否为手动输入唯一码的商品（有批次号和唯一号）
+                const isManualInputCode = product.details.every(detail => detail.batch && detail.uniqueNo);
+                
+                html += `
+                    <div class="product-group-card" data-index="${pIndex}">
+                        <div style="padding: 15px; background: #f5f5f5; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-size: 16px; font-weight: bold;">${product.name}</div>
+                                <button onclick="removeProductGroup(${pIndex}, '${type}')" style="background: #ffebee; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #e53935;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div style="display: flex; gap: 20px; font-size: 13px; color: #666;">
+                                <span>规格：${product.specification || '-'}</span>
+                                <span>当前库存：${product.stock}瓶</span>
+                                <span style="color: #ec407a; font-weight: bold;">已选：${product.details.length}件</span>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 15px; background: #fff;">
+                            ${isManualInputCode ? `
+                                <div style="font-size: 12px; color: #999; margin-bottom: 10px;">明细：</div>
+                                ${product.details.map((detail, dIndex) => `
+                                    <div style="padding: 10px 0; ${dIndex < product.details.length - 1 ? 'border-bottom: 1px dashed #e8e8e8;' : ''}">
+                                        <div style="font-size: 13px; color: #666;">
+                                            <div>批次：${detail.batch} | 唯一号：${detail.uniqueNo}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            ` : isManualSelected ? `
+                                <div style="font-size: 12px; color: #999; margin-bottom: 10px;">明细：</div>
+                                <div style="padding: 10px 0;">
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 10px;">手动选择</div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 13px; color: #666;">数量：</span>
+                                        <button onclick="decreaseManualQuantity(${pIndex})" style="width: 28px; height: 28px; border: 1px solid #e8e8e8; border-radius: 4px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                        <input type="number" value="${product.details.length}" min="1" max="${product.stock}" onchange="updateManualQuantity(${pIndex}, this.value)" style="width: 80px; padding: 5px; border: 1px solid #e8e8e8; border-radius: 4px; text-align: center;">
+                                        <button onclick="increaseManualQuantity(${pIndex})" style="width: 28px; height: 28px; border: 1px solid #e8e8e8; border-radius: 4px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div style="font-size: 12px; color: #999; margin-bottom: 10px;">明细：</div>
+                                ${product.details.map((detail, dIndex) => `
+                                    <div style="padding: 10px 0; ${dIndex < product.details.length - 1 ? 'border-bottom: 1px dashed #e8e8e8;' : ''}">
+                                        <div style="font-size: 13px; color: #666;">
+                                            <div>批次：${detail.batch} | 唯一号：${detail.uniqueNo}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = html;
+            if (countElement) {
+                countElement.textContent = totalCount;
+            }
+        }
+
+        function decreaseManualQuantity(productIndex) {
+            const product = outboundData.products[productIndex];
+            if (product && product.details.length > 1) {
+                product.details.pop();
+                renderProductList('outbound');
+                updateOutboundCount();
+            }
+        }
+
+        function increaseManualQuantity(productIndex) {
+            const product = outboundData.products[productIndex];
+            if (product && product.details.length < product.stock) {
+                product.details.push({batch: '', uniqueNo: ''});
+                renderProductList('outbound');
+                updateOutboundCount();
+            } else if (product && product.details.length >= product.stock) {
+                showAppAlert('已达到最大库存数量');
+            }
+        }
+
+        function updateManualQuantity(productIndex, value) {
+            const product = outboundData.products[productIndex];
+            if (product) {
+                const quantity = parseInt(value) || 1;
+                const newQuantity = Math.min(Math.max(1, quantity), product.stock);
+                
+                // 调整details数组长度
+                product.details = [];
+                for (let i = 0; i < newQuantity; i++) {
+                    product.details.push({batch: '', uniqueNo: ''});
+                }
+                
+                renderProductList('outbound');
+                updateOutboundCount();
+            }
+        }
+        
+        function renderConfirmList(type) {
+            const data = outboundData;
+            const listId = 'outbound-confirm-list';
+            const countId = 'outbound-confirm-count';
+            const typeDisplayId = 'outbound-type-display';
+            const listContainer = document.getElementById(listId);
+            const actionText = '出库';
+            
+            const typeSelect = document.getElementById(type + '-type');
+            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+            document.getElementById(typeDisplayId).textContent = selectedOption.text;
+            
+            const totalCount = data.products.reduce((sum, p) => sum + p.details.length, 0);
+            document.getElementById(countId).textContent = totalCount;
+            
+            let html = '';
+            data.products.forEach((product, pIndex) => {
+                html += `
+                    <div class="product-group-card" data-index="${pIndex}">
+                        <div style="padding: 15px; background: #f5f5f5; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-size: 16px; font-weight: bold;">${product.name}</div>
+                            </div>
+                            <div style="display: flex; gap: 20px; font-size: 13px; color: #666;">
+                                <span>当前库存：${product.stock}瓶</span>
+                                <span style="color: #ec407a; font-weight: bold;">${actionText}数量：${product.details.length}件</span>
+                            </div>
+                        </div>
+                        <div style="padding: 10px 15px; background: #fff;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 10px;">${actionText}明细：</div>
+                            ${product.details.map((detail, dIndex) => `
+                                <div style="padding: 10px 0; ${dIndex < product.details.length - 1 ? 'border-bottom: 1px dashed #e8e8e8;' : ''}">
+                                    <div style="font-size: 13px; color: #666;">
+                                        <div>批次：${detail.batch} | 唯一号：${detail.uniqueNo}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listContainer.innerHTML = html;
+        }
+        
+        function removeProductGroup(index, type) {
+            const data = outboundData;
+            const product = data.products[index];
+            
+            showAppDialog('确认操作', `确定全部撤回已扫描的"${product.name}"吗？`, ['取消', '确定'], function() {
+                data.products.splice(index, 1);
+                renderProductList(type);
+                updateOutboundCount();
+            });
+        }
+        
+        function updateOutboundCount() {
+            const total = outboundData.products.reduce((sum, p) => sum + p.details.length, 0);
+            document.getElementById('outbound-selected-count').textContent = total;
+        }
+
+        let currentCategory = 'all';
+        let currentSearchKeyword = '';
+
+        function selectCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderProductCards();
+        }
+
+        let selectedProducts = {};
+
+        function renderProductCards() {
+            const container = document.getElementById('product-cards-container');
+            let filteredProducts = inventoryProducts;
+            
+            if (currentCategory !== 'all') {
+                filteredProducts = inventoryProducts.filter(p => p.category === currentCategory);
+            }
+            
+            if (currentSearchKeyword) {
+                filteredProducts = filteredProducts.filter(p => p.name.includes(currentSearchKeyword));
+            }
+            
+            let html = '';
+            filteredProducts.forEach(product => {
+                const quantity = selectedProducts[product.name] || 0;
+                html += `
+                    <div class="product-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <div class="product-card-name">${product.name}</div>
+                                <div class="product-card-spec">规格：${product.name.match(/\d+[ml|g]/) ? product.name.match(/\d+[ml|g]/)[0] : '无'}</div>
+                                <div class="product-card-stock">库存：${product.stock}件</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="add-icon" onclick="addProductQuantity('${product.name}')">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec407a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </div>
+                                ${quantity > 0 ? `<div style="margin-top: 5px; font-size: 14px; font-weight: bold; color: #ec407a;">${quantity}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function addProductQuantity(productName) {
+            if (!selectedProducts[productName]) {
+                selectedProducts[productName] = 0;
+            }
+            const product = inventoryProducts.find(p => p.name === productName);
+            if (product && selectedProducts[productName] < product.stock) {
+                selectedProducts[productName]++;
+                updateSelectedCount();
+                renderProductCards();
+            } else if (product && selectedProducts[productName] >= product.stock) {
+                showAppAlert('已达到最大库存数量');
+            }
+        }
+
+        function updateSelectedCount() {
+            const total = Object.values(selectedProducts).reduce((sum, qty) => sum + qty, 0);
+            const selectedCountEl = document.getElementById('selected-count');
+            if (selectedCountEl) {
+                selectedCountEl.textContent = total;
+            }
+        }
+
+        function showSelectedProducts() {
+            if (Object.keys(selectedProducts).length === 0) {
+                showAppAlert('暂无已选商品');
+                return;
+            }
+
+            let html = `
+                <div style="max-height: 300px; overflow-y: auto;">
+            `;
+
+            Object.entries(selectedProducts).forEach(([productName, quantity]) => {
+                const product = inventoryProducts.find(p => p.name === productName);
+                if (product) {
+                    html += `
+                        <div style="padding: 15px; border-bottom: 1px solid #e8e8e8;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div style="font-size: 15px; font-weight: bold; margin-bottom: 8px;">${productName}</div>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 6px;">规格：${product.name.match(/\d+[ml|g]/) ? product.name.match(/\d+[ml|g]/)[0] : '无'}</div>
+                                    <div style="font-size: 13px; color: #666;">剩余库存：${product.stock}件</div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <button onclick="decreaseQuantity('${productName}')" style="width: 24px; height: 24px; border: 1px solid #e8e8e8; border-radius: 4px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                        <input type="number" value="${quantity}" min="1" max="${product.stock}" onchange="updateQuantity('${productName}', this.value)" style="width: 60px; padding: 5px; border: 1px solid #e8e8e8; border-radius: 4px; text-align: center;">
+                                        <button onclick="increaseQuantity('${productName}')" style="width: 24px; height: 24px; border: 1px solid #e8e8e8; border-radius: 4px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <button onclick="removeProduct('${productName}')" style="color: #e53935; font-size: 12px; cursor: pointer;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `
+                </div>
+            `;
+
+            showAppDialog('已选商品', html, ['取消', '确定'], function() {
+                // 确认按钮点击事件
+            });
+        }
+
+        function decreaseQuantity(productName) {
+            if (selectedProducts[productName] && selectedProducts[productName] > 1) {
+                selectedProducts[productName]--;
+                updateSelectedCount();
+                renderProductCards();
+            }
+        }
+
+        function increaseQuantity(productName) {
+            const product = inventoryProducts.find(p => p.name === productName);
+            if (product && selectedProducts[productName] < product.stock) {
+                selectedProducts[productName]++;
+                updateSelectedCount();
+                renderProductCards();
+            } else if (product && selectedProducts[productName] >= product.stock) {
+                showAppAlert('已达到最大库存数量');
+            }
+        }
+
+        function updateQuantity(productName, value) {
+            const quantity = parseInt(value) || 1;
+            const product = inventoryProducts.find(p => p.name === productName);
+            if (product) {
+                selectedProducts[productName] = Math.min(Math.max(1, quantity), product.stock);
+                updateSelectedCount();
+                renderProductCards();
+            }
+        }
+
+        function removeProduct(productName) {
+            delete selectedProducts[productName];
+            updateSelectedCount();
+            renderProductCards();
+            showSelectedProducts(); // 重新显示已选商品弹窗
+        }
+
+        function confirmAddProducts() {
+            if (Object.keys(selectedProducts).length === 0) {
+                showAppAlert('请至少选择一件商品');
+                return;
+            }
+
+            // 将选中的商品添加到出库数据中
+            Object.entries(selectedProducts).forEach(([productName, quantity]) => {
+                const product = inventoryProducts.find(p => p.name === productName);
+                if (product) {
+                    let existingProduct = outboundData.products.find(p => p.name === productName);
+                    
+                    if (existingProduct) {
+                        // 添加指定数量的商品详情
+                        for (let i = 0; i < quantity; i++) {
+                            existingProduct.details.push({batch: '', uniqueNo: ''});
+                        }
+                    } else {
+                        // 创建新的商品记录
+                        const details = [];
+                        for (let i = 0; i < quantity; i++) {
+                            details.push({batch: '', uniqueNo: ''});
+                        }
+                        const newProduct = {
+                            name: productName,
+                            stock: product.stock,
+                            details: details
+                        };
+                        outboundData.products.push(newProduct);
+                    }
+                }
+            });
+
+            // 清空选中商品
+            selectedProducts = {};
+            updateSelectedCount();
+            renderProductCards();
+
+            // 返回到第二步选择商品页面
+            goBackToOutboundStep2();
+        }
+
+        function addProductFromList(productName) {
+            const product = inventoryProducts.find(p => p.name === productName);
+            if (!product) return;
+            
+            let existingProduct = outboundData.products.find(p => p.name === productName);
+            
+            if (existingProduct) {
+                existingProduct.details.push({batch: '', uniqueNo: ''});
+            } else {
+                const newProduct = {
+                    name: productName,
+                    stock: product.stock,
+                    details: [{batch: '', uniqueNo: ''}]
+                };
+                outboundData.products.push(newProduct);
+            }
+            
+            renderProductList('outbound');
+            updateOutboundCount();
+            showAppAlert('商品已添加');
+        }
+
+        const productListSearchInput = document.getElementById('product-list-search');
+        if (productListSearchInput) {
+            productListSearchInput.addEventListener('input', function() {
+                currentSearchKeyword = this.value.trim();
+                renderProductCards();
+            });
+        }
+
+        showPage = function(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            if (pageId === 'page-outbound') {
+                resetOutboundSteps();
+            } else if (pageId === 'page-outbound-history') {
+                resetSearchConditions();
+            } else if (pageId === 'page-product-list') {
+                renderProductCards();
+            }
+        }
+
+        function showWithdrawScanDialog(type) {
+            currentWithdrawType = type;
+            showAppDialog('扫码撤回', `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 14px; margin-bottom: 15px;">请扫描要撤回的商品条码</div>
+                    <div style="background: #f5f5f5; border-radius: 8px; padding: 40px; margin-bottom: 15px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <div style="font-size: 12px; color: #999;">点击模拟扫描</div>
+                    </div>
+                    <button onclick="simulateWithdrawScan()" style="background: #ec407a; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; cursor: pointer;">模拟扫描</button>
+                </div>
+            `, ['取消']);
+        }
+        
+        function simulateWithdrawScan() {
+            const dialogEl = document.querySelector('.app-dialog-overlay');
+            if (dialogEl) dialogEl.remove();
+            
+            const data = outboundData;
+            
+            const nonExistentProduct = {
+                name: '测试不存在商品-精华露100ml',
+                batch: 'P20260401',
+                uniqueNo: 'NO.99999999'
+            };
+            
+            const shouldShowNotFound = Math.random() < 0.3;
+            
+            if (shouldShowNotFound) {
+                showAppDialog('未找到商品', `
+                    <div style="padding: 20px;">
+                        <div style="background: #fff3e0; border-radius: 8px; padding: 15px; border: 1px solid #ffcc80;">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #e65100;">${nonExistentProduct.name}</div>
+                            <div style="font-size: 13px; color: #666;">批次：${nonExistentProduct.batch}</div>
+                            <div style="font-size: 13px; color: #666;">唯一号：${nonExistentProduct.uniqueNo}</div>
+                        </div>
+                        <div style="font-size: 13px; color: #999; margin-top: 12px; text-align: center;">该商品不在当前已选商品列表中</div>
+                    </div>
+                `, ['确定']);
+                return;
+            }
+            
+            if (data.products.length > 0 && data.products[0].details.length > 0) {
+                const product = data.products[0];
+                const detail = product.details[0];
+                
+                showAppDialog('确认撤回', `
+                    <div style="padding: 20px;">
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">${product.name}</div>
+                            <div style="font-size: 13px; color: #666;">批次：${detail.batch}</div>
+                            <div style="font-size: 13px; color: #666;">唯一号：${detail.uniqueNo}</div>
+                        </div>
+                    </div>
+                `, ['取消', '确定'], function() {
+                    product.details.shift();
+                    if (product.details.length === 0) {
+                        const index = data.products.indexOf(product);
+                        data.products.splice(index, 1);
+                    }
+                    renderProductList(currentWithdrawType);
+                    if (currentWithdrawType === 'outbound') {
+                        updateOutboundCount();
+                    } else {
+                        updateInboundCount();
+                    }
+                    showAppAlert('撤回成功');
+                });
+            } else {
+                showAppDialog('未找到商品', `
+                    <div style="padding: 20px; text-align: center;">
+                        <div style="font-size: 14px; color: #666;">当前没有可撤回的商品</div>
+                    </div>
+                `, ['确定']);
+            }
+        }
+        
+        function showAppDialog(title, content, buttons, onConfirm) {
+            const existingDialog = document.querySelector('.app-dialog-overlay');
+            if (existingDialog) existingDialog.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'app-dialog-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'app-dialog';
+            dialog.style.cssText = `
+                background: #fff;
+                border-radius: 12px;
+                width: 80%;
+                max-width: 300px;
+                overflow: hidden;
+            `;
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.style.cssText = `
+                padding: 20px 20px 10px;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+            `;
+            titleDiv.textContent = title;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.style.cssText = `
+                padding: 10px 20px 20px;
+                text-align: center;
+            `;
+            contentDiv.innerHTML = content;
+            
+            const btnDiv = document.createElement('div');
+            btnDiv.style.cssText = `
+                display: flex;
+                border-top: 1px solid #e8e8e8;
+            `;
+            
+            buttons.forEach((btnText, index) => {
+                const btn = document.createElement('button');
+                btn.style.cssText = `
+                    flex: 1;
+                    padding: 15px;
+                    border: none;
+                    background: #fff;
+                    font-size: 16px;
+                    cursor: pointer;
+                    color: ${index === buttons.length - 1 ? '#ec407a' : '#666'};
+                    font-weight: ${index === buttons.length - 1 ? 'bold' : 'normal'};
+                    ${index > 0 ? 'border-left: 1px solid #e8e8e8;' : ''}
+                `;
+                btn.textContent = btnText;
+                
+                btn.onclick = function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    if (index === buttons.length - 1 && onConfirm) {
+                        onConfirm();
+                    }
+                    overlay.remove();
+                };
+                
+                btnDiv.appendChild(btn);
+            });
+            
+            dialog.appendChild(titleDiv);
+            dialog.appendChild(contentDiv);
+            dialog.appendChild(btnDiv);
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            };
+        }
+        
+        function showAppAlert(message) {
+            const existingAlert = document.querySelector('.app-alert-overlay');
+            if (existingAlert) existingAlert.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'app-alert-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const alert = document.createElement('div');
+            alert.style.cssText = `
+                background: rgba(0,0,0,0.8);
+                color: #fff;
+                padding: 15px 30px;
+                border-radius: 8px;
+                font-size: 14px;
+            `;
+            alert.textContent = message;
+            
+            overlay.appendChild(alert);
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 1500);
+        }
+
+    // 出库记录相关函数
+    function searchOutboundHistory() {
+        const type = document.getElementById('history-type').value;
+        const startDate = document.getElementById('history-start-date').value;
+        const endDate = document.getElementById('history-end-date').value;
+        
+        // 模拟当前登录用户
+        const currentUser = '张美容师';
+        
+        // 模拟出库记录数据
+        const mockHistory = [
+            {
+                id: '1',
+                type: 'sales',
+                typeName: '销售出库',
+                date: '2026-04-05',
+                time: '10:30',
+                operator: '张美容师',
+                products: [
+                    {name: '图朵拉蕴悦香氛美肤油30ml', quantity: 2},
+                    {name: '图朵拉保湿精华液50ml', quantity: 1}
+                ],
+                total: 3
+            },
+            {
+                id: '2',
+                type: 'use',
+                typeName: '领用出库',
+                date: '2026-04-04',
+                time: '15:45',
+                operator: '张美容师',
+                products: [
+                    {name: '图朵拉焕采面霜50g', quantity: 1}
+                ],
+                total: 1
+            },
+            {
+                id: '3',
+                type: 'sales',
+                typeName: '销售出库',
+                date: '2026-04-03',
+                time: '14:20',
+                operator: '李美容师',
+                products: [
+                    {name: '图朵拉洁面乳100ml', quantity: 1}
+                ],
+                total: 1
+            }
+        ];
+        
+        // 过滤数据
+        let filteredHistory = mockHistory;
+        // 只显示当前用户的记录
+        filteredHistory = filteredHistory.filter(item => item.operator === currentUser);
+        if (type) {
+            filteredHistory = filteredHistory.filter(item => item.type === type);
+        }
+        if (startDate) {
+            filteredHistory = filteredHistory.filter(item => item.date >= startDate);
+        }
+        if (endDate) {
+            filteredHistory = filteredHistory.filter(item => item.date <= endDate);
+        }
+        
+        // 更新计数
+        document.getElementById('history-count').textContent = filteredHistory.length;
+        
+        // 渲染记录列表
+        const listContainer = document.getElementById('outbound-history-list');
+        
+        if (filteredHistory.length === 0) {
+            listContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #999;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <div>暂无出库记录</div>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        filteredHistory.forEach(item => {
+            html += `
+                <div class="product-group-card">
+                    <div style="padding: 15px; background: #f5f5f5; border-bottom: 1px solid #e8e8e8;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 16px; font-weight: bold;">${item.typeName}</div>
+                            <div style="font-size: 13px; color: #999;">${item.date} ${item.time}</div>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #666;">
+                            <span>出库单号：OUT${item.id.padStart(8, '0')}</span>
+                            <span>操作人：${item.operator}</span>
+                            <span style="color: #ec407a; font-weight: bold;">共 ${item.total} 件</span>
+                        </div>
+                    </div>
+                    <div style="padding: 10px 15px; background: #fff;">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 10px;">商品明细：</div>
+                        ${item.products.map(product => `
+                            <div style="padding: 10px 0; border-bottom: 1px dashed #e8e8e8;">
+                                <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between;">
+                                    <span>${product.name}</span>
+                                    <span style="font-weight: bold;">${product.quantity}件</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        listContainer.innerHTML = html;
+    }
+
+    function resetSearchConditions() {
+        // 重置搜索条件
+        document.getElementById('history-type').value = '';
+        document.getElementById('history-start-date').value = '';
+        document.getElementById('history-end-date').value = '';
+        
+        // 重置计数
+        document.getElementById('history-count').textContent = '0';
+        
+        // 重置记录列表
+        const listContainer = document.getElementById('outbound-history-list');
+        listContainer.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #999;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <div>暂无出库记录</div>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>

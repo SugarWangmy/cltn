@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建订单</title>
+    <style>
+        :root {
+            --primary: #f1a3b8;
+            --primary-dark: #e890a8;
+            --primary-light: #fff0f3;
+            --bg: #faf7f5;
+            --card-bg: #ffffff;
+            --text: #5a4a42;
+            --text-light: #8a7a72;
+            --border: #f5e3d8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .mode-switch {
+            display: flex;
+            gap: 8px;
+            background: var(--bg);
+            padding: 4px;
+            border-radius: 20px;
+        }
+        .mode-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 16px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .left-panel {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .right-panel {
+            width: 380px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .client-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 4px;
+            background: #f8f7f5;
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+        .cat-tab {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.25s ease;
+            color: #6a5a4e;
+            border: 2px solid transparent;
+            background: transparent;
+        }
+        .cat-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(241, 163, 184, 0.3);
+        }
+        .product-search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .product-search-input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .series-select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            min-width: 120px;
+        }
+        .search-btn, .reset-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .search-btn {
+            background: var(--primary);
+            color: white;
+        }
+        .reset-btn {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .product-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(241, 163, 184, 0.15);
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .product-price {
+            font-size: 16px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .rights-section-header, .product-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .toggle-rights-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            transition: transform 0.3s;
+        }
+        .toggle-rights-btn.collapsed {
+            transform: rotate(180deg);
+        }
+        .customize-rights-btn {
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ffffff;
+        }
+        .rights-search-area {
+            background: var(--bg);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .rights-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-header {
+            margin-bottom: 12px;
+        }
+        .card-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .card-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .card-type {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 10px;
+        }
+        .card-expiry {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .benefits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .benefit-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .benefit-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gift-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 4px;
+        }
+        .benefit-remain {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .add-benefit {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--primary-dark);
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .add-benefit .icon {
+            width: 16px;
+            height: 16px;
+        }
+        .cart-item {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        .qty-input {
+            width: 60px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .delete-item {
+            stroke: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .delete-item:hover {
+            stroke: var(--primary-dark);
+            transform: scale(1.1);
+        }
+        .beautician-select, .card-select {
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 1px solid #e8d8ce;
+            font-size: 12px;
+            background: linear-gradient(145deg, #ffffff 0%, #faf7f5 100%);
+            color: #5a4a42;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .beautician-select:hover, .card-select:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(241, 163, 184, 0.15);
+        }
+        .gift-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6a5a52;
+            padding: 4px 10px;
+            background: #fff9f5;
+            border-radius: 20px;
+        }
+        .price-detail {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+        .discount-badge {
+            font-size: 11px;
+            color: #6a5a2b;
+            background: #f9f3e8;
+            border-radius: 10px;
+            padding: 2px 8px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+        .cart-item-controls {
+            margin-top: 14px;
+            border-top: 1px dashed #f5e3d8;
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .control-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5a4a42;
+            white-space: nowrap;
+        }
+        .apply-all-btn, .add-card-btn {
+            background: white;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+        .apply-all-btn:hover, .add-card-btn:hover {
+            background: var(--primary-light);
+        }
+        .card-info {
+            font-size: 11px;
+            color: #6a5a52;
+            background: #f9f3e8;
+            border-radius: 8px;
+            padding: 4px 10px;
+            flex: 1;
+            min-width: 0;
+        }
+        .remove-card-btn {
+            background: #ffe5e5;
+            border: 1px solid #ffcccc;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #d32f2f;
+            transition: all 0.2s;
+        }
+        .remove-card-btn:hover {
+            background: #ffcccc;
+        }
+        .summary-section {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>创建订单</h1>
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="guest">散客</button>
+            <button class="mode-btn" data-mode="member">会员</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="section">
+                <div class="section-title">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    客户信息
+                </div>
+                <div class="client-info">
+                    <div class="info-item">
+                        <span class="info-label">客户姓名</span>
+                        <span class="info-value">张三</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">手机号</span>
+                        <span class="info-value">138****8888</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">会员等级</span>
+                        <span class="info-value">金卡会员</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">剩余权益</span>
+                        <span class="info-value">3项</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section" id="rightsModule">
+                <div class="rights-section-header">
+                    <div class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M6 12h.01M6 16h.01"/></svg>
+                        已有权益
+                        <button class="customize-rights-btn" id="customizeRightsBtn">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            定制权益
+                        </button>
+                    </div>
+                    <button class="toggle-rights-btn" id="toggleRightsBtn">
+                        <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                </div>
+                <div id="rightsContentWrapper">
+                    <div class="rights-search-area">
+                        <div class="product-search-row">
+                            <input type="text" id="rightsSearchInput" class="product-search-input" placeholder="搜索权益">
+                            <select id="rightsTypeSelect" class="series-select">
+                                <option value="">全部类型</option>
+                                <option value="amount">金额卡</option>
+                                <option value="times">次卡</option>
+                            </select>
+                            <button class="search-btn" id="rightsSearchBtn">搜索</button>
+                            <button class="reset-btn" id="rightsResetBtn">重置</button>
+                        </div>
+                    </div>
+                    <div id="rightsContainer" class="rights-grid"></div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="product-section-header">
+                    <div class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        选购商品
+                    </div>
+                    <div class="category-tabs">
+                        <button class="cat-tab active" data-category="home">居家产品</button>
+                        <button class="cat-tab" data-category="care">单次护理</button>
+                        <button class="cat-tab" data-category="cardItem">卡项</button>
+                    </div>
+                </div>
+                <div class="product-search-row">
+                    <input type="text" id="productSearchInput" class="product-search-input" placeholder="搜索商品名称">
+                    <select id="seriesSelect" class="series-select"></select>
+                    <button class="search-btn" id="productSearchBtn">搜索</button>
+                    <button class="reset-btn" id="productResetBtn">重置</button>
+                </div>
+                <div id="productContainer" class="product-grid"></div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="section-title">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                已选商品
+            </div>
+            <div id="cartContainer"></div>
+            
+            <div class="summary-section">
+                <div class="summary-row">
+                    <span>商品总数</span>
+                    <span id="totalCount">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>商品总额</span>
+                    <span id="totalAmount">¥0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>优惠金额</span>
+                    <span id="discountAmount">-¥0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>应付总额</span>
+                    <span id="payableAmount">¥0.00</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="cancelBtn">取消</button>
+                    <button class="btn btn-primary" id="submitBtn">提交订单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const beauticians = ['小王', '小李', '小张', '小刘'];
+        const amountCards = [
+            { id: 'card1', name: '金卡', remainingAmount: 1000, discounts: { home: 0.9, care: 0.8, cardItem: 0.7 } },
+            { id: 'card2', name: '银卡', remainingAmount: 500, discounts: { home: 0.95, care: 0.9, cardItem: 0.85 } }
+        ];
+        const rightsData = [
+            { id: 1, name: '面部护理卡', type: 'times', expiry: '2024-12-31', benefits: [{ name: '深层清洁', remaining: 5, isGift: false }, { name: '补水护理', remaining: 3, isGift: true }] },
+            { id: 2, name: '身体护理卡', type: 'amount', expiry: '2024-12-31', remainingAmount: 800, benefits: [{ name: '全身按摩', remaining: null, isGift: false }] }
+        ];
+        const productsData = {
+            home: [
+                { id: 1, name: '洁面乳', price: 128, category: 'home' },
+                { id: 2, name: '爽肤水', price: 168, category: 'home' },
+                { id: 3, name: '精华液', price: 298, category: 'home' },
+                { id: 4, name: '面霜', price: 238, category: 'home' }
+            ],
+            care: [
+                { id: 5, name: '深层清洁', price: 198, category: 'care' },
+                { id: 6, name: '补水护理', price: 268, category: 'care' },
+                { id: 7, name: '美白护理', price: 368, category: 'care' }
+            ],
+            cardItem: [
+                { id: 8, name: '金卡套餐', price: 1000, category: 'cardItem' },
+                { id: 9, name: '银卡套餐', price: 500, category: 'cardItem' }
+            ]
+        };
+        
+        let currentMode = 'guest';
+        let currentCategory = 'home';
+        let cart = [];
+        
+        // 初始化
+        function init() {
+            renderProducts();
+            renderRights();
+            renderCart();
+            bindEvents();
+        }
+        
+        // 渲染商品
+        function renderProducts() {
+            const container = document.getElementById('productContainer');
+            const products = productsData[currentCategory] || [];
+            container.innerHTML = products.map(p => `
+                <div class="product-card" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-category="${p.category}">
+                    <div class="product-name">${p.name}</div>
+                    <div class="product-price">¥${p.price}</div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const name = card.dataset.name;
+                    const price = parseFloat(card.dataset.price);
+                    const category = card.dataset.category;
+                    addProductToCart(name, price, category);
+                });
+            });
+        }
+        
+        // 渲染权益
+        function renderRights() {
+            const container = document.getElementById('rightsContainer');
+            container.innerHTML = rightsData.map(card => {
+                const typeTag = card.type === 'times' ? '<span class="card-type">次卡</span>' : '<span class="card-type">金额卡</span>';
+                const balanceInfo = card.remainingAmount ? `<div style="font-size: 12px; color: var(--primary-dark); margin-top: 4px;">余额: ¥${card.remainingAmount}</div>` : '';
+                return `<div class="rights-card"><div class="card-header"><div class="card-title-row"><span class="card-name">${card.name}</span>${typeTag}<span class="card-expiry">到期时间 ${card.expiry}</span></div>${balanceInfo}</div><div class="benefits-list">${card.benefits.map(b => `<div class="benefit-item" data-benefit="${b.name}" data-cardname="${card.name}" data-cardtype="${card.type}"><span class="benefit-name">${b.name} ${b.isGift ? '<span class="gift-tag">赠</span>' : ''}</span>${b.remaining !== null && b.remaining !== undefined ? `<span class="benefit-remain">剩余${b.remaining}次</span>` : ''}<span class="add-benefit"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> 选择</span></div>`).join('')}</div></div>`;
+            }).join('');
+            
+            document.querySelectorAll('.add-benefit').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const benefitName = btn.parentElement.dataset.benefit;
+                    const cardName = btn.parentElement.dataset.cardname;
+                    const cardType = btn.parentElement.dataset.cardtype;
+                    addRightsToCart(benefitName, cardName, cardType);
+                });
+            });
+        }
+        
+        // 添加商品到购物车
+        function addProductToCart(name, price, category) {
+            const existing = cart.find(i => !i.isRightsBenefit && i.name === name);
+            if (existing) existing.quantity += 1;
+            else cart.push({ id: Date.now(), name, price, quantity: 1, productCategory: category, isGift: false, beautician: '', selectedCardId: '' });
+            renderCart();
+        }
+        
+        // 添加权益到购物车
+        function addRightsToCart(benefitName, cardName, cardType) {
+            cart.push({
+                id: Date.now(),
+                name: `${cardName} - ${benefitName}`,
+                price: 0,
+                quantity: 1,
+                isRightsBenefit: true,
+                isGift: false,
+                beautician: '',
+                selectedCardId: ''
+            });
+            renderCart();
+        }
+        
+        // 计算商品价格
+        function computeItemPrice(item) {
+            const retail = item.price * item.quantity;
+            if (item.isGift) return { discountedPrice: 0, cardDeduction: 0, finalPrice: 0, discountRate: 0, cardRemaining: null };
+            if (!item.selectedCardId || currentMode !== 'member') return { discountedPrice: retail, cardDeduction: 0, finalPrice: retail, discountRate: 1.0, cardRemaining: null };
+            
+            const card = amountCards.find(c => c.id === item.selectedCardId);
+            if (!card) return { discountedPrice: retail, cardDeduction: 0, finalPrice: retail, discountRate: 1.0, cardRemaining: null };
+            
+            const rate = card.discounts[item.productCategory] || 1.0;
+            const discounted = retail * rate;
+            const deduction = Math.min(discounted, card.remainingAmount);
+            let final = discounted - deduction;
+            if (final < 0) final = 0;
+            
+            return { 
+                discountedPrice: discounted, 
+                cardDeduction: deduction, 
+                finalPrice: final, 
+                discountRate: rate, 
+                cardRemaining: card.remainingAmount - deduction 
+            };
+        }
+        
+        // 渲染购物车
+        function renderCart() {
+            const container = document.getElementById('cartContainer');
+            let totalItems = 0;
+            let totalAmount = 0;
+            let totalDiscount = 0;
+            let totalPayable = 0;
+            const showCardSelect = currentMode === 'member';
+            
+            container.innerHTML = cart.map(item => {
+                totalItems += item.quantity;
+                const retailTotal = item.price * item.quantity;
+                const priceInfo = computeItemPrice(item);
+                const discountRate = priceInfo.discountRate !== 1.0 ? `(${Math.round(priceInfo.discountRate*10)}折)` : '';
+                const selectedCard = amountCards.find(c => c.id === item.selectedCardId);
+                
+                totalAmount += retailTotal;
+                totalDiscount += (retailTotal - priceInfo.discountedPrice) + priceInfo.cardDeduction;
+                totalPayable += priceInfo.finalPrice;
+                
+                return `<div class="cart-item" data-id="${item.id}">
+                            <div class="cart-item-row">
+                                <div class="item-name">${item.name}</div>
+                                <select class="beautician-select" data-id="${item.id}"><option value="">请选择美容师</option>${beauticians.map(b => `<option value="${b}" ${item.beautician === b ? 'selected' : ''}>${b}</option>`).join('')}</select>
+                                <label class="gift-label"><input type="checkbox" class="gift-checkbox" data-id="${item.id}" ${item.isGift ? 'checked' : ''}> 赠送服务</label>
+                                <input type="number" class="qty-input" data-id="${item.id}" value="${item.quantity}" min="1" step="1">
+                                <svg class="icon delete-item" data-id="${item.id}" style="cursor:pointer;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </div>
+                            <div class="price-detail">
+                                <span>零售价： ¥${retailTotal.toFixed(2)}</span>
+                                ${priceInfo.discountRate !== 1.0 ? `<span>折后: ¥${priceInfo.discountedPrice.toFixed(2)} ${discountRate}</span>` : ''}
+                                ${priceInfo.cardDeduction > 0 ? `<span>卡抵扣： -¥${priceInfo.cardDeduction.toFixed(2)}</span>` : ''}
+                                <span><strong>应付: ¥${priceInfo.finalPrice.toFixed(2)}</strong></span>
+                            </div>
+                            <div class="cart-item-controls">
+                                ${showCardSelect ? `<div class="controls-row">
+                                    <span class="control-label">应用卡项：</span>
+                                    <select class="card-select" data-id="${item.id}"><option value="">请选择卡项</option>${amountCards.map(c => `<option value="${c.id}" ${item.selectedCardId === c.id ? 'selected' : ''}>${c.name} (余额¥${c.remainingAmount})</option>`).join('')}</select>
+                                    ${selectedCard ? `<span class="card-info">抵扣后余额：${priceInfo.cardRemaining.toFixed(2)} | 折扣说明：${selectedCard.discounts?.[item.productCategory] === 0.9 ? '居家9折' : selectedCard.discounts?.[item.productCategory] === 0.8 ? '服务8折' : '无折扣'}</span>` : ''}
+                                    <button class="add-card-btn" data-id="${item.id}">添加卡项</button>
+                                </div>` : ''}
+                            </div>
+                        </div>`;
+            }).join('');
+            
+            // 更新汇总信息
+            document.getElementById('totalCount').textContent = totalItems;
+            document.getElementById('totalAmount').textContent = '¥' + totalAmount.toFixed(2);
+            document.getElementById('discountAmount').textContent = '-¥' + totalDiscount.toFixed(2);
+            document.getElementById('payableAmount').textContent = '¥' + totalPayable.toFixed(2);
+            
+            // 事件绑定
+            document.querySelectorAll('.qty-input').forEach(input => input.addEventListener('change', (e) => { 
+                const id = parseInt(input.dataset.id); 
+                const idx = cart.findIndex(i => i.id === id); 
+                if(idx !== -1 && !cart[idx].isRightsBenefit){ 
+                    let nq = parseInt(input.value) || 1;
+                    if(nq <= 0) { 
+                        cart.splice(idx,1); 
+                    } else { 
+                        cart[idx].quantity = nq; 
+                    }
+                    renderCart(); 
+                } 
+            }));
+            document.querySelectorAll('.delete-item').forEach(del => del.addEventListener('click', (e) => { const id = parseInt(del.dataset.id); cart = cart.filter(i => i.id !== id); renderCart(); }));
+            document.querySelectorAll('.gift-checkbox').forEach(cb => cb.addEventListener('change', (e) => { const id = parseInt(cb.dataset.id); const it = cart.find(i => i.id === id); if(it && !it.isRightsBenefit){ it.isGift = cb.checked; renderCart(); } }));
+            document.querySelectorAll('.beautician-select').forEach(sel => sel.addEventListener('change', (e) => { const id = parseInt(sel.dataset.id); const it = cart.find(i => i.id === id); if(it && !it.isRightsBenefit){ it.beautician = sel.value; renderCart(); } }));
+            document.querySelectorAll('.card-select').forEach(sel => sel.addEventListener('change', (e) => { const id = parseInt(sel.dataset.id); const it = cart.find(i => i.id === id); if(it && !it.isRightsBenefit){ it.selectedCardId = sel.value; renderCart(); } }));
+            document.querySelectorAll('.add-card-btn').forEach(btn => btn.addEventListener('click', (e) => { 
+                const id = parseInt(btn.dataset.id); 
+                const it = cart.find(i => i.id === id); 
+                if(it && !it.isRightsBenefit){ 
+                    // 这里可以添加卡项选择逻辑
+                    alert('添加卡项功能');
+                } 
+            }));
+        }
+        
+        // 绑定事件
+        function bindEvents() {
+            // 模式切换
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    renderCart();
+                });
+            });
+            
+            // 分类切换
+            document.querySelectorAll('.cat-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentCategory = tab.dataset.category;
+                    renderProducts();
+                });
+            });
+            
+            // 权益折叠
+            const toggleRightsBtn = document.getElementById('toggleRightsBtn');
+            const rightsContentWrapper = document.getElementById('rightsContentWrapper');
+            if (toggleRightsBtn && rightsContentWrapper) {
+                toggleRightsBtn.addEventListener('click', () => {
+                    rightsContentWrapper.style.display = rightsContentWrapper.style.display === 'none' ? 'block' : 'none';
+                    toggleRightsBtn.classList.toggle('collapsed');
+                });
+            }
+            
+            // 取消按钮
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                if (confirm('确定要取消订单吗？')) {
+                    cart = [];
+                    renderCart();
+                }
+            });
+            
+            // 提交按钮
+            document.getElementById('submitBtn').addEventListener('click', () => {
+                if (cart.length === 0) {
+                    alert('请先选择商品');
+                    return;
+                }
+                alert('订单提交成功！');
+            });
+        }
+        
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

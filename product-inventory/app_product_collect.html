@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>收货入库</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333333;
+            background-color: #f5f5f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 顶部导航 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background-color: #F099B0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            position: absolute;
+            left: 16px;
+            padding: 8px;
+        }
+
+        .back-button svg {
+            color: white;
+            width: 20px;
+            height: 20px;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 16px;
+            padding-bottom: 80px; /* 为底部操作栏留出空间 */
+        }
+
+        /* 物品清单标题 */
+        .list-header {
+            margin-bottom: 16px;
+        }
+
+        .list-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .list-tip {
+            font-size: 12px;
+            color: #999999;
+            line-height: 1.4;
+        }
+
+        /* 商品卡片 */
+        .product-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-info {
+            position: relative;
+            width: 100%;
+        }
+
+        .product-info-content {
+            width: 100%;
+        }
+
+        .product-image {
+            float: left;
+            margin-right: 12px;
+            width: 80px;
+            height: 80px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .product-details {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #333333;
+        }
+
+        .product-spec {
+            font-size: 12px;
+            color: #999999;
+            margin-bottom: 12px;
+        }
+
+        .quantity-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .quantity-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quantity-label {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .quantity-value {
+            font-size: 12px;
+            color: #333333;
+        }
+
+        .receipt-quantity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-toggle {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #F099B0;
+            font-size: 12px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .product-details-content {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+            display: none;
+            width: 100%;
+            box-sizing: border-box;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .product-details-content.expanded {
+            display: block;
+        }
+
+        .batch-table-container {
+            overflow-x: auto;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .batch-table th {
+            background-color: #f9f9f9;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666666;
+            font-weight: 500;
+        }
+
+        .batch-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333333;
+        }
+
+        .batch-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-label {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-label.received {
+            /* background-color: #e8f5e8; */
+            color: #2e7d32;
+        }
+
+        .status-label.rejected {
+            /* background-color: #ffebee; */
+            color: #c62828;
+        }
+
+        .status-label.active {
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-label.received.active {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .status-label.rejected.active {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .total-info {
+            font-size: 14px;
+            color: #333333;
+        }
+
+        .confirm-button {
+            background-color: #F099B0;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* 图标样式 */
+        .linear-icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="header">
+        <button class="back-button" onclick="goBack()">
+            <svg class="linear-icon" viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+        <h1 class="page-title">收货入库</h1>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 物品清单标题和提示 -->
+        <div class="list-header">
+            <div class="list-title">
+                <svg class="linear-icon" style="width: 16px; height: 16px; color: #F099B0; margin-right: 8px;" viewBox="0 0 24 24">
+                    <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path>
+                    <polyline points="22 17 16 17 14 15 18 15 16 13 22 13"></polyline>
+                    <polyline points="12 7 14 9 18 5"></polyline>
+                    <line x1="9" y1="13" x2="11" y2="15"></line>
+                    <line x1="9" y1="7" x2="9" y2="13"></line>
+                </svg>
+                <span style="font-size: 16px; font-weight: 500; color: #333333;">物品清单</span>
+            </div>
+            <p class="list-tip">请核对实际收货数量，总部拆分包裹发货，可分多次发货</p>
+        </div>
+
+        <!-- 商品卡片 1 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div class="product-info-content">
+                    <div class="product-image"></div>
+                    <div class="product-details">
+                        <div class="product-name">克丽缇娜杏仁酸焕颜安瓶精华液</div>
+                        <div class="product-spec">10ml*6</div>
+                        <div class="quantity-info">
+                            <div class="quantity-row">
+                                <span class="quantity-label">购买数量</span>
+                                <span class="quantity-value">20</span>
+                            </div>
+                            <div class="quantity-row">
+                                <span class="quantity-label">待收货数量</span>
+                                <span class="quantity-value">20</span>
+                            </div>
+                            <div class="quantity-row">
+                                <span class="quantity-label">收货数量</span>
+                                <span class="quantity-value receipt-quantity">20</span>
+                            </div>
+                            <div class="quantity-row">
+                                <span class="quantity-label">货品明细</span>
+                                <div class="detail-toggle" onclick="toggleDetails(this)">
+                                    <span class="toggle-text">展开</span>
+                                    <svg class="linear-icon toggle-icon" style="width: 14px; height: 14px; color: #F099B0;" viewBox="0 0 24 24">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-details-content">
+                    <div class="batch-table-container">
+                        <table class="batch-table">
+                            <thead>
+                                <tr>
+                                    <th>批次号</th>
+                                    <th>商品唯一编号</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401001</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401002</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401003</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401004</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401005</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401006</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401007</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401008</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401009</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401010</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401011</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401012</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401013</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401014</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401015</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401016</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401017</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401018</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401019</td>
+                                </tr>
+                                <tr>
+                                    <td>20240401A</td>
+                                    <td>PRO20240401020</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 2 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div class="product-image"></div>
+                <div class="product-details">
+                    <div class="product-name">克丽缇娜玻尿酸保湿精华液</div>
+                    <div class="product-spec">30ml</div>
+                    <div class="quantity-info">
+                        <div class="quantity-row">
+                            <span class="quantity-label">购买数量</span>
+                            <span class="quantity-value">15</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">待收货数量</span>
+                            <span class="quantity-value">15</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">收货数量</span>
+                            <span class="quantity-value receipt-quantity">15</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">货品明细</span>
+                            <div class="detail-toggle" onclick="toggleDetails(this)">
+                                <span class="toggle-text">展开</span>
+                                <svg class="linear-icon toggle-icon" style="width: 14px; height: 14px; color: #F099B0;" viewBox="0 0 24 24">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="product-details-content">
+                            <div class="batch-table-container">
+                                <table class="batch-table">
+                                    <thead>
+                                        <tr>
+                                            <th>批次号</th>
+                                            <th>商品唯一编号</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                    <td>20240402B</td>
+                                    <td>PRO20240402001</td>
+                                </tr>
+                                <tr>
+                                    <td>20240402B</td>
+                                    <td>PRO20240402002</td>
+                                </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402003</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402004</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402005</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402006</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402007</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402008</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402009</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402010</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402011</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402012</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402013</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402014</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240402B</td>
+                                            <td>PRO20240402015</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品卡片 3 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div class="product-image"></div>
+                <div class="product-details">
+                    <div class="product-name">克丽缇娜EGF修护精华液</div>
+                    <div class="product-spec">20ml</div>
+                    <div class="quantity-info">
+                        <div class="quantity-row">
+                            <span class="quantity-label">购买数量</span>
+                            <span class="quantity-value">26</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">待收货数量</span>
+                            <span class="quantity-value">26</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">收货数量</span>
+                            <span class="quantity-value receipt-quantity">26</span>
+                        </div>
+                        <div class="quantity-row">
+                            <span class="quantity-label">货品明细</span>
+                            <div class="detail-toggle" onclick="toggleDetails(this)">
+                                <span class="toggle-text">展开</span>
+                                <svg class="linear-icon toggle-icon" style="width: 14px; height: 14px; color: #F099B0;" viewBox="0 0 24 24">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="product-details-content">
+                            <div class="batch-table-container">
+                                <table class="batch-table">
+                                    <thead>
+                                        <tr>
+                                            <th>批次号</th>
+                                            <th>商品唯一编号</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                    <td>20240403C</td>
+                                    <td>PRO20240403001</td>
+                                </tr>
+                                <tr>
+                                    <td>20240403C</td>
+                                    <td>PRO20240403002</td>
+                                </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403003</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403004</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403005</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403006</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403007</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403008</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403009</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403010</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403011</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403012</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403013</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403014</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403015</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403016</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403017</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403018</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403019</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403020</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403021</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403022</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403023</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403024</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403025</td>
+                                        </tr>
+                                        <tr>
+                                            <td>20240403C</td>
+                                            <td>PRO20240403026</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+        <div class="total-info">收货数量：共 <span id="totalReceiptQuantity">61</span> 件商品</div>
+        <button class="confirm-button" onclick="confirmReceipt()">确认收货</button>
+    </div>
+
+    <script>
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        // 展开/收起货品明细
+        function toggleDetails(toggle) {
+            const productCard = toggle.closest('.product-card');
+            const content = productCard.querySelector('.product-details-content');
+            const icon = toggle.querySelector('.toggle-icon');
+            const text = toggle.querySelector('.toggle-text');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+                text.textContent = '展开';
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+                text.textContent = '收起';
+            }
+        }
+
+        function updateTotalReceiptQuantity() {
+            const productCards = document.querySelectorAll('.product-card');
+            let total = 0;
+            productCards.forEach(card => {
+                const pendingQuantity = card.querySelector('.pending-quantity');
+                const receiptQuantity = card.querySelector('.receipt-quantity');
+                if (pendingQuantity && receiptQuantity) {
+                    const quantity = parseInt(pendingQuantity.textContent);
+                    receiptQuantity.textContent = quantity;
+                    total += quantity;
+                }
+            });
+            document.getElementById('totalReceiptQuantity').textContent = total;
+        }
+
+        // 确认收货
+        function confirmReceipt() {
+            // 这里可以添加确认收货的逻辑
+            alert('确认收货成功！');
+        }
+
+        // 页面加载时计算总收货数量
+        window.onload = function() {
+            updateTotalReceiptQuantity();
+        }
+    </script>
+</body>
+</html>

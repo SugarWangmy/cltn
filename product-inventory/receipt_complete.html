@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>收货完成</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .success-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #ff6b81;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .success-icon svg {
+            width: 25px;
+            height: 25px;
+            color: #ffffff;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666666;
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 300px;
+        }
+
+        .receipt-info {
+            width: 100%;
+            max-width: 320px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #666666;
+        }
+
+        .info-value {
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .back-home-btn {
+            width: 100%;
+            max-width: 320px;
+            background-color: #ff6b81;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-home-btn:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .linear-icon {
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-icon">
+        <svg class="linear-icon" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+    </div>
+    
+    <h1 class="page-title">入库完成</h1>
+    
+    <p class="description">
+        您已完成入库，物品库存数量已更新
+    </p>
+    
+    <div class="receipt-info">
+        <div class="info-row">
+            <span class="info-label">本次入库数量</span>
+            <span class="info-value" id="receiptCount">3件</span>
+        </div>
+        <div class="info-row" style="margin-top: 12px;">
+            <span class="info-label">赊销</span>
+            <span class="info-value" id="creditCount">0件</span>
+        </div>
+        <div class="info-row" style="margin-top: 12px;">
+            <span class="info-label">门店自有</span>
+            <span class="info-value" id="distributionCount">0件</span>
+        </div>
+    </div>
+    
+    <button class="back-home-btn" onclick="backToHome()">返回首页</button>
+
+    <script>
+        // 页面加载时获取收货数量
+        window.onload = function() {
+            // 从URL参数中获取收货数量
+            const urlParams = new URLSearchParams(window.location.search);
+            const count = urlParams.get('count');
+            const credit = urlParams.get('credit');
+            const distribution = urlParams.get('distribution');
+            
+            if (count) {
+                document.getElementById('receiptCount').textContent = `${count}件`;
+            }
+            
+            if (credit) {
+                document.getElementById('creditCount').textContent = `${credit}件`;
+            }
+            
+            if (distribution) {
+                document.getElementById('distributionCount').textContent = `${distribution}件`;
+            }
+        };
+
+        // 返回首页
+        function backToHome() {
+            // 这里可以根据实际情况修改为首页URL
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

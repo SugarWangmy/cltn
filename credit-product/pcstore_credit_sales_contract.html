@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CHLITINA 克丽缇娜 合同管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #F9FAFB;
+        }
+        .sidebar-item-active {
+            background-color: #FFE4EC;
+            color: #E6005C;
+            border-right: 4px solid #E6005C;
+        }
+        .btn-primary {
+            background-color: #E6005C;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #C2004D;
+        }
+        .contract-content {
+            scrollbar-width: thin;
+            scrollbar-color: #E6005C #FDF2F5;
+        }
+        .timeline-dot {
+            position: relative;
+        }
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 40px;
+            background-color: #E5E7EB;
+            transform: translateX(-50%);
+        }
+        .timeline-item:last-child .timeline-dot::after {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white border-r border-gray-100 flex flex-col flex-shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-[#E6005C] rounded-lg flex items-center justify-center text-white">
+<iconify-icon icon="solar:crown-minimalistic-bold" width="24"></iconify-icon>
+</div>
+<span class="font-bold text-lg text-gray-800 tracking-tight">CHLITINA</span>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:home-smile-angle-linear" width="22"></iconify-icon>
+<span>首页</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:users-group-rounded-linear" width="22"></iconify-icon>
+<span>客户</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:calendar-mark-linear" width="22"></iconify-icon>
+<span>预约</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 sidebar-item-active rounded-lg transition-colors" href="javascript:void(0)" id="nav-contract" onclick="switchPage('home')">
+<iconify-icon icon="solar:document-text-bold" width="22"></iconify-icon>
+<span class="font-medium">合同</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:wallet-money-linear" width="22"></iconify-icon>
+<span>收银</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:box-linear" width="22"></iconify-icon>
+<span>商品</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:archive-linear" width="22"></iconify-icon>
+<span>库存</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:chart-2-linear" width="22"></iconify-icon>
+<span>报表</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:settings-linear" width="22"></iconify-icon>
+<span>设置</span>
+</a>
+<div class="pt-4 mt-4 border-t border-gray-100">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors" href="#">
+<iconify-icon icon="solar:star-fall-minimalistic-linear" width="22"></iconify-icon>
+<span>F88 专属</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FDF2F5]/30">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
+<div class="flex items-center gap-2">
+<h1 class="text-gray-800 font-semibold text-lg">CHLITINA 克丽缇娜 合同管理</h1>
+<span class="px-2 py-0.5 bg-pink-100 text-[#E6005C] text-xs rounded-full">v2.4.0</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right hidden md:block">
+<div class="text-sm font-medium text-gray-800">roger</div>
+<div class="text-xs text-gray-400">测试店1</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-white overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-15/223451e4263a4c8ca18890e876274224.jpg"/>
+</div>
+<div class="flex flex-col text-xs text-gray-500">
+<span>2026年04月15日</span>
+<span>星期三</span>
+</div>
+</div>
+<button class="text-gray-400 hover:text-red-500">
+<iconify-icon icon="solar:logout-linear" width="20"></iconify-icon>
+</button>
+</div>
+</header>
+<!-- Dynamic Content Area -->
+<section class="flex-1 overflow-y-auto p-8" id="content-area">
+<!-- Page: No Contract (Default) -->
+<div class="page-container h-full flex flex-col items-center justify-center" id="page-home">
+<div class="max-w-md w-full text-center">
+<div class="mb-6 inline-flex p-10 bg-white rounded-full shadow-sm">
+<iconify-icon class="text-pink-200" icon="solar:document-add-linear" width="80"></iconify-icon>
+</div>
+<h2 class="text-2xl font-bold text-gray-800 mb-2">合同待签署</h2>
+<p class="text-gray-500 mb-8">请点击下方按钮发起赊销铺货合同签署。</p>
+<button class="btn-primary text-white px-10 py-3.5 rounded-xl font-medium shadow-lg shadow-pink-200 flex items-center gap-2 mx-auto" onclick="switchPage('signing')">
+<iconify-icon icon="solar:pen-new-square-linear" width="20"></iconify-icon>
+                        去签署合同
+                    </button>
+</div>
+</div>
+<!-- Page: Contract Signing -->
+<div class="page-container hidden" id="page-signing">
+<div class="max-w-4xl mx-auto">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-2 text-gray-500">
+<button class="hover:text-gray-800 transition-colors flex items-center gap-1" onclick="switchPage('home')">
+<iconify-icon icon="solar:arrow-left-linear" width="20"></iconify-icon>
+                                返回列表
+                            </button>
+</div>
+<span class="text-sm text-gray-400">流水号: CT20260415-0089</span>
+</div>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="p-8 border-b border-gray-100 flex justify-between items-end">
+<div>
+<h1 class="text-2xl font-bold text-gray-900 mb-2">克丽缇娜产品赊销铺货合同</h1>
+<p class="text-gray-500">CHLITINA Product Credit Sales &amp; Distribution Agreement</p>
+</div>
+<div class="text-right">
+<div class="text-sm text-gray-400">签署方 (甲方)</div>
+<div class="font-bold text-gray-800">克丽缇娜（中国）贸易有限公司</div>
+</div>
+</div>
+<div class="p-8 contract-content max-h-[500px] overflow-y-auto text-gray-600 space-y-6 leading-relaxed bg-[#FAFBFC]">
+<section>
+<h3 class="font-bold text-gray-800 mb-3">第一条 合同目的</h3>
+<p>为促进克丽缇娜品牌产品在授权区域内的市场推广与销售，甲乙双方本着互利互惠的原则，就乙方从甲方处赊销铺货事宜达成如下协议。本合同旨在规范赊销流程、额度管理及结算周期。</p>
+</section>
+<section>
+<h3 class="font-bold text-gray-800 mb-3">第二条 铺货额度与期限</h3>
+<p>1. 甲方授予乙方初始赊销额度为人民币 <strong>200,000.00</strong> 元（大写：贰拾万元整）。</p>
+<p>2. 合同有效期自 2026年04月15日 起至 2027年04月14日 止。</p>
+<p>3. 乙方需在每笔订单签收后 45 个自然日内完成货款结算。逾期将按日万分之五支付滞纳金。</p>
+</section>
+<section>
+<h3 class="font-bold text-gray-800 mb-3">第三条 产品质量与交付</h3>
+<p>甲方保证所提供产品符合国家质量标准及品牌标准。乙方收货时应进行当场验收，如发现包装破损或数量差异，应在24小时内向甲方提出书面异议，否则视为验收合格。</p>
+</section>
+<section>
+<h3 class="font-bold text-gray-800 mb-3">第四条 违约责任</h3>
+<p>1. 乙方若连续两期未按时回笼货款，甲方有权单方面中止发货并按日计算滞纳金。</p>
+<p>2. 乙方不得跨区域销售赊销产品，一经发现，甲方有权收回剩余库存并终止本合同。</p>
+</section>
+</div>
+<div class="p-8 bg-white border-t border-gray-100">
+<div class="flex flex-col gap-6">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 w-5 h-5 rounded border-gray-300 text-[#E6005C] focus:ring-[#E6005C]" id="agree-check" type="checkbox"/>
+<span class="text-gray-600 text-sm group-hover:text-gray-900 transition-colors">
+                                        我已充分阅读、理解并同意《克丽缇娜产品赊销铺货合同》中的所有条款，承认该合同具有法律效力，并承诺按约履行。
+                                    </span>
+</label>
+<div class="flex gap-4">
+<button class="flex-1 btn-primary text-white py-4 rounded-xl font-bold shadow-lg shadow-pink-100" onclick="signContract()">
+                                        同意并签署
+                                    </button>
+<button class="px-8 py-4 border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 font-medium" onclick="switchPage('home')">
+                                        拒绝签署
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Page: Contract View (Details + Timeline) -->
+<div class="page-container hidden" id="page-view">
+<div class="max-w-5xl mx-auto space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<h2 class="text-2xl font-bold text-gray-800">合同详情</h2>
+<span class="px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-full flex items-center gap-1">
+<iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
+                                履约中
+                            </span>
+</div>
+<button class="flex items-center gap-2 text-[#E6005C] font-medium hover:underline" onclick="switchPage('renew')">
+<iconify-icon icon="solar:refresh-circle-linear" width="20"></iconify-icon>
+                            发起续约申请
+                        </button>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<!-- Left: Info Cards -->
+<div class="col-span-2 space-y-6">
+<div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+<div class="grid grid-cols-2 gap-8 mb-8">
+<div>
+<div class="text-xs text-gray-400 uppercase tracking-wider mb-1">合同编号</div>
+<div class="text-lg font-bold text-gray-800">CHL-2026-0415-X1</div>
+</div>
+<div>
+<div class="text-xs text-gray-400 uppercase tracking-wider mb-1">签署日期</div>
+<div class="text-lg font-bold text-gray-800">2026-04-15</div>
+</div>
+<div>
+<div class="text-xs text-gray-400 uppercase tracking-wider mb-1">乙方（门店）</div>
+<div class="text-lg font-bold text-gray-800">测试店1 (ID: 88902)</div>
+</div>
+<div>
+<div class="text-xs text-gray-400 uppercase tracking-wider mb-1">赊销限额</div>
+<div class="text-lg font-bold text-pink-600">￥200,000.00</div>
+</div>
+</div>
+<div class="p-4 bg-gray-50 rounded-xl text-gray-500 text-sm leading-relaxed border-l-4 border-gray-200">
+                                    备注：本合同为年度常规赊销协议，包含2026年度克丽缇娜全线院线及家居产品，结算周期固定为45天。
+                                </div>
+</div>
+<!-- Document Preview -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+<div class="px-8 py-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+<span class="font-medium text-gray-700">合同文本快照</span>
+<button class="text-xs text-blue-600 hover:underline">查看电子签署证书</button>
+</div>
+<div class="p-8 h-80 overflow-y-auto text-sm text-gray-400">
+<!-- Simplified Text for View -->
+<p class="mb-4">【正文摘要】克丽缇娜产品赊销铺货合同...</p>
+<p class="mb-4">第一条 合同目的：为促进克丽缇娜品牌产品在授权区域内的市场推广与销售...</p>
+<p class="mb-4">第二条 铺货额度与期限：甲方授予乙方初始赊销额度为人民币 200,000.00 元...</p>
+<p class="mb-4">第三条 产品质量与交付：甲方保证所提供产品符合国家质量标准及品牌标准...</p>
+<p>...更多内容已存档...</p>
+</div>
+</div>
+</div>
+<!-- Right: Timeline -->
+<div class="col-span-1">
+<div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm sticky top-8">
+<h3 class="font-bold text-gray-800 mb-8 flex items-center gap-2">
+<iconify-icon class="text-blue-500" icon="solar:history-bold" width="20"></iconify-icon>
+                                    合同时间线
+                                </h3>
+<div class="space-y-10">
+<div class="timeline-item flex gap-4">
+<div class="timeline-dot w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 z-10">
+<div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-800">合同签署生效</div>
+<div class="text-xs text-gray-400">2026-04-15 10:24:00</div>
+<div class="text-xs mt-1 text-gray-500 italic">由 roger 完成电子签署</div>
+</div>
+</div>
+<div class="timeline-item flex gap-4">
+<div class="timeline-dot w-6 h-6 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center flex-shrink-0 z-10">
+<iconify-icon class="text-blue-500" icon="solar:play-bold" width="12"></iconify-icon>
+</div>
+<div>
+<div class="text-sm font-bold text-blue-600">当前履行中</div>
+<div class="text-xs text-gray-400">2026-04-15 (今日)</div>
+<div class="text-xs mt-1 text-blue-500 bg-blue-50 inline-block px-1 rounded">第 1 天 / 共 365 天</div>
+</div>
+</div>
+<div class="timeline-item flex gap-4">
+<div class="timeline-dot w-6 h-6 rounded-full bg-gray-50 border-2 border-gray-200 flex items-center justify-center flex-shrink-0 z-10"></div>
+<div>
+<div class="text-sm font-bold text-gray-400">合同到期</div>
+<div class="text-xs text-gray-400">2027-04-14 23:59:59</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Page: Contract Renewal (Comparison) -->
+<div class="page-container hidden" id="page-renew">
+<div class="max-w-5xl mx-auto space-y-6">
+<div class="flex items-center gap-3 mb-2">
+<iconify-icon class="text-orange-500" icon="solar:refresh-square-bold" width="32"></iconify-icon>
+<h2 class="text-2xl font-bold text-gray-800">合同续约申请</h2>
+</div>
+<div class="bg-white rounded-2xl border-2 border-orange-100 shadow-xl overflow-hidden">
+<div class="p-8 bg-orange-50 flex items-center gap-4">
+<iconify-icon class="text-orange-600" icon="solar:info-circle-bold" width="24"></iconify-icon>
+<span class="text-orange-800 font-medium">续约提醒：基于您的良好信用，您可直接续约合同，无需重新签署。</span>
+</div>
+<div class="p-8">
+<h3 class="font-bold text-gray-800 mb-6">新旧条款对比</h3>
+<div class="border border-gray-100 rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-gray-50 text-gray-400 text-xs uppercase tracking-wider">
+<tr>
+<th class="px-6 py-4">对比项</th>
+<th class="px-6 py-4">原合同 (CHL-2025)</th>
+<th class="px-6 py-4 text-orange-600">新合同 (CHL-2026)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50 text-sm">
+<tr>
+<td class="px-6 py-4 font-medium text-gray-700">有效期</td>
+<td class="px-6 py-4 text-gray-500">2025-04-15 至 2026-04-14</td>
+<td class="px-6 py-4 text-gray-800 font-bold">2026-04-15 至 2027-04-14</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-medium text-gray-700">结算周期</td>
+<td class="px-6 py-4 text-gray-500">30 天</td>
+<td class="px-6 py-4 text-gray-800 font-bold">30 天 (保持不变)</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-medium text-gray-700">单笔限额</td>
+<td class="px-6 py-4 text-gray-500">￥50,000.00</td>
+<td class="px-6 py-4 text-gray-800 font-bold">￥80,000.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="px-8 pb-8 flex items-center justify-between">
+<div class="flex items-center gap-2 text-gray-500 text-sm">
+<iconify-icon icon="solar:verified-check-linear" width="18"></iconify-icon>
+                                已自动填充旧合同门店基础信息
+                            </div>
+<div class="flex gap-4">
+<button class="px-6 py-3 border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50" onclick="switchPage('view')">
+                                    暂不续约
+                                </button>
+<button class="px-10 py-3 bg-orange-500 text-white rounded-xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-600" onclick="confirmRenew()">
+                                    立即确认并签署新合同
+                                </button>
+</div>
+</div>
+</div>
+<!-- Visual Timeline Extension -->
+<div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-6">服务周期延续示意</h3>
+<div class="relative pt-10 pb-6">
+<div class="h-2 bg-gray-100 rounded-full w-full"></div>
+<div class="absolute top-10 left-0 h-2 bg-gray-300 rounded-full w-1/2"></div>
+<div class="absolute top-10 left-1/2 h-2 bg-orange-400 rounded-full w-1/2"></div>
+<!-- Markers -->
+<div class="absolute top-7 left-0 flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-white border-4 border-gray-300 shadow-sm z-10"></div>
+<span class="text-[10px] text-gray-400 mt-2">2025-04</span>
+</div>
+<div class="absolute top-7 left-1/2 flex flex-col items-center -translateX-1/2">
+<div class="w-10 h-10 rounded-full bg-white border-4 border-orange-400 shadow-sm z-20 flex items-center justify-center">
+<iconify-icon class="text-orange-400" icon="solar:star-bold" width="16"></iconify-icon>
+</div>
+<span class="text-xs font-bold text-orange-600 mt-2">今日续约节点</span>
+</div>
+<div class="absolute top-7 right-0 flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-white border-4 border-orange-100 shadow-sm z-10"></div>
+<span class="text-[10px] text-gray-400 mt-2">2027-04</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Page Navigation Logic
+        function switchPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page-container');
+            pages.forEach(p => p.classList.add('hidden'));
+            
+            // Show target page
+            const targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.style.animation = 'fadeIn 0.4s ease-out';
+            }
+
+            // Scroll to top
+            document.getElementById('content-area').scrollTop = 0;
+        }
+
+        // Action: Sign Contract
+        function signContract() {
+            const checkbox = document.getElementById('agree-check');
+            if (!checkbox.checked) {
+                alert('请先勾选页面下方的同意协议条款');
+                return;
+            }
+            
+            // Simulate processing
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<iconify-icon icon="eos-icons:loading" class="mr-2"></iconify-icon> 正在生成签署记录...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('合同签署成功！');
+                switchPage('view');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        }
+
+        // Action: Confirm Renew
+        function confirmRenew() {
+            if(confirm('您确定要按照新条款签署续约合同吗？')) {
+                alert('续约合同签署成功！新的授信额度已即时生效。');
+                switchPage('view');
+            }
+        }
+
+        // Animation Definition
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
