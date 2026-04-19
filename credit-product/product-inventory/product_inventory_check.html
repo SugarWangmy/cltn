@@ -443,6 +443,17 @@
             border-radius: 4px;
         }
 
+        .delete-product-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+        }
+
         /* 空状态 */
         .empty-state {
             display: flex;
@@ -664,7 +675,7 @@
         <div class="header-content">
             <h1 class="page-title">库存盘点</h1>
             <div class="header-right">
-                <div class="input-barcode-entry header-entry" onclick="manualInput()">
+                <div class="input-barcode-entry header-entry"  onclick="manualAdd()">
                     <!-- <svg t="1776075027405" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9769" width="14" height="14" style="margin-right: 4px;">
                         <path d="M326.656 188.416L0 753.664 32.768 1024l249.856-107.008L609.28 351.744 326.656 188.416zM353.9456 141.4656L435.6096 0.0512l282.88 163.328-81.664 141.4144zM409.6 921.6h614.4v102.4H409.6z" fill="#ff6b81" p-id="9770"></path></svg> -->
                     <span style="font-size: 12px;">登记无库存商品</span>
@@ -709,7 +720,7 @@
                     <div class="method-title">扫描添加</div>
                 </div>
             </div>
-            <div class="add-method" onclick="manualAdd()">
+            <div class="add-method">
                 <div class="method-icon scan-icon">
                     <svg class="linear-icon" style="color: #ff6b81;" viewBox="0 0 24 24">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -717,7 +728,7 @@
                         <line x1="9" y1="21" x2="9" y2="9"></line>
                     </svg>
                 </div>
-                <div class="method-content">
+                <div class="method-content" onclick="manualInput()">
                     <div class="method-title">输入编码</div>
                 </div>
             </div>
@@ -780,6 +791,9 @@
 
         // 已盘点的商品列表
         let checkedProducts = [];
+        
+        // 编辑模式状态
+        let isEditMode = false;
 
         // 返回按钮功能
         function goBack() {
@@ -829,8 +843,20 @@
 
         // 手动选择功能
         function manualAdd() {
-            alert('手动选择功能已触发');
-            // 这里可以添加实际的手动选择功能
+            alert('手动添加无库存商品');
+            
+            const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
+            
+            checkedProducts.push({
+                id: randomProduct.id,
+                name: randomProduct.name,
+                specification: randomProduct.specification,
+                quantity: 0,
+                barcodes: []
+            });
+            
+            renderProductList();
+            updateItemCount();
         }
 
         // 添加商品到列表
@@ -895,41 +921,68 @@
             `;
             
             checkedProducts.forEach((product, index) => {
-                const barcodeCount = product.barcodes.length;
-                const subtotal = product.quantity + barcodeCount;
+                const creditBarcodes = product.barcodes.filter(b => b.stockType === '赊销');
+                const storeBarcodes = product.barcodes.filter(b => b.stockType === '门店自有');
+                const creditCount = creditBarcodes.length;
+                const storeCount = storeBarcodes.length;
+                const totalCount = product.quantity;
+                
                 html += `
                     <div class="product-card" data-index="${index}">
                         <div class="product-header">
                             <div class="product-header-row">
                                 <div class="product-name">${product.name}</div>
+                                ${isEditMode ? `<button class="delete-product-btn" onclick="deleteProduct(${index})">
+                                    <svg class="linear-icon" style="width: 18px; height: 18px; color: #ff6b81;" viewBox="0 0 24 24">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>` : ''}
                             </div>
                             <div class="product-info-row">
                                 <div class="product-spec">${product.specification}</div>
                                 <div class="product-total">
                                     <span class="product-total-label">小计</span>
-                                    <span class="product-total-value">${subtotal}</span>
+                                    <span class="product-total-value" id="product-total-${index}">${totalCount}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="barcode-summary-row">
-                            <span class="barcode-summary-label">扫描/输入编码明细</span>
-                            <span class="barcode-count">${barcodeCount}件</span>
+                            <span class="barcode-summary-label">门店自有商品数量</span>
+                            ${isEditMode ? `
+                            <div class="quantity-editor">
+                                <button class="qty-btn" onclick="changeStoreQuantity(${index}, -1)">-</button>
+                                <input type="number" class="qty-input" value="${storeCount}" min="0" id="store-qty-${index}" onchange="updateStoreQuantity(${index}, this.value)">
+                                <button class="qty-btn" onclick="changeStoreQuantity(${index}, 1)">+</button>
+                            </div>
+                            ` : `<span class="barcode-count">${storeCount}件</span>`}
+                        </div>
+                        ${creditCount > 0 ? `
+                        <div class="barcode-summary-row">
+                            <span class="barcode-summary-label">赊销库存商品数量</span>
+                            <span class="barcode-count">${creditCount}件</span>
                         </div>
                         <div class="barcode-details">
-                            ${product.barcodes.map((barcode, barcodeIndex) => `
+                            ${creditBarcodes.map((barcode, barcodeIndex) => {
+                                const originalIndex = product.barcodes.indexOf(barcode);
+                                return `
                                 <div class="barcode-row">
                                     <span>${barcode.batchNo}</span>
                                     <span>${barcode.barcode}</span>
-                                    <span class="stock-type ${barcode.stockType === '赊销' ? 'credit' : 'distribution'}">${barcode.stockType}</span>
-                                    <button class="delete-btn" onclick="deleteBarcode(${index}, ${barcodeIndex})">
+                                    <span class="stock-type credit">${barcode.stockType}</span>
+                                    ${isEditMode ? `
+                                    <button class="delete-btn" onclick="deleteBarcode(${index}, ${originalIndex})">
                                         <svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                         </svg>
                                     </button>
+                                    ` : ''}
                                 </div>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -1006,16 +1059,113 @@
         // 更新商品计数
         function updateItemCount() {
             const totalCount = checkedProducts.reduce((sum, p) => {
-                const subtotal = p.quantity + p.barcodes.length;
-                return sum + subtotal;
+                return sum + p.quantity;
             }, 0);
             document.querySelector('.item-count').textContent = `共计 ${totalCount}`;
         }
 
         // 编辑功能
         function editItems() {
-            alert('编辑功能已触发');
-            // 这里可以添加实际的编辑功能
+            if (isEditMode) {
+                // 保存编辑
+                isEditMode = false;
+                renderProductList();
+                updateItemCount();
+            } else {
+                // 进入编辑模式
+                isEditMode = true;
+                renderProductList();
+            }
+            
+            // 更新编辑按钮文字
+            const editButtons = document.querySelectorAll('.edit-button');
+            editButtons.forEach(btn => {
+                btn.textContent = isEditMode ? '保存' : '编辑';
+            });
+        }
+
+        // 修改门店自有商品数量（步进按钮）
+        function changeStoreQuantity(index, delta) {
+            const product = checkedProducts[index];
+            const storeBarcodes = product.barcodes.filter(b => b.stockType === '门店自有');
+            const currentCount = storeBarcodes.length;
+            const newCount = currentCount + delta;
+            
+            if (newCount >= 0) {
+                // 更新门店自有条码数量
+                while (product.barcodes.filter(b => b.stockType === '门店自有').length < newCount) {
+                    const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                    const barcode = '690' + String(product.id).padStart(9, '0') + Math.floor(Math.random() * 10);
+                    product.barcodes.push({
+                        batchNo: batchNo,
+                        barcode: barcode,
+                        stockType: '门店自有'
+                    });
+                }
+                while (product.barcodes.filter(b => b.stockType === '门店自有').length > newCount) {
+                    const idx = product.barcodes.findIndex(b => b.stockType === '门店自有');
+                    if (idx !== -1) product.barcodes.splice(idx, 1);
+                }
+                
+                // 同步更新小计数量
+                product.quantity = product.barcodes.length;
+                
+                // 更新小计显示
+                const totalEl = document.getElementById(`product-total-${index}`);
+                if (totalEl) {
+                    totalEl.textContent = product.quantity;
+                }
+                
+                updateItemCount();
+            }
+        }
+
+        // 更新门店自有商品数量（输入框）
+        function updateStoreQuantity(index, value) {
+            const product = checkedProducts[index];
+            const newCount = parseInt(value);
+            
+            if (newCount >= 0) {
+                const storeBarcodes = product.barcodes.filter(b => b.stockType === '门店自有');
+                const currentCount = storeBarcodes.length;
+                
+                if (newCount > currentCount) {
+                    while (product.barcodes.filter(b => b.stockType === '门店自有').length < newCount) {
+                        const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                        const barcode = '690' + String(product.id).padStart(9, '0') + Math.floor(Math.random() * 10);
+                        product.barcodes.push({
+                            batchNo: batchNo,
+                            barcode: barcode,
+                            stockType: '门店自有'
+                        });
+                    }
+                } else if (newCount < currentCount) {
+                    while (product.barcodes.filter(b => b.stockType === '门店自有').length > newCount) {
+                        const idx = product.barcodes.findIndex(b => b.stockType === '门店自有');
+                        if (idx !== -1) product.barcodes.splice(idx, 1);
+                    }
+                }
+                
+                // 同步更新小计数量
+                product.quantity = product.barcodes.length;
+                
+                // 更新小计显示
+                const totalEl = document.getElementById(`product-total-${index}`);
+                if (totalEl) {
+                    totalEl.textContent = product.quantity;
+                }
+                
+                updateItemCount();
+            }
+        }
+
+        // 删除整个商品卡片
+        function deleteProduct(index) {
+            if (confirm('确定要删除这个商品吗？')) {
+                checkedProducts.splice(index, 1);
+                renderProductList();
+                updateItemCount();
+            }
         }
 
         // 暂存功能
