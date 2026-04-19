@@ -718,7 +718,7 @@
                     </svg>
                 </div>
                 <div class="method-content">
-                    <div class="method-title">输入条码</div>
+                    <div class="method-title">输入编码</div>
                 </div>
             </div>
         </div>
@@ -753,12 +753,12 @@
     <div class="modal" id="manualInputModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>手动输入商品条码</h3>
+                <h3>手动输入商品编码</h3>
                 <button class="close-btn" onclick="closeManualInputModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <input type="text" id="barcodeInput" placeholder="请输入商品条码" class="barcode-input">
+                    <input type="text" id="barcodeInput" placeholder="请输入商品编码" class="barcode-input">
                 </div>
             </div>
             <div class="modal-footer">
@@ -790,7 +790,7 @@
         function scanAdd() {
             // 随机选择一个商品
             const randomProduct = mockProducts[Math.floor(Math.random() * mockProducts.length)];
-            // 生成批次号和条码
+            // 生成批次号和编码
             const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
             const barcode = '690' + String(randomProduct.id).padStart(9, '0') + Math.floor(Math.random() * 10);
             // 随机库存类型
@@ -839,7 +839,7 @@
             let existingProduct = checkedProducts.find(p => p.id === product.id);
             
             if (existingProduct) {
-                // 增加数量并添加条码明细
+                // 增加数量并添加编码明细
                 existingProduct.quantity++;
                 existingProduct.barcodes.push({
                     batchNo: batchNo,
@@ -911,16 +911,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="quantity-row">
-                            <span class="quantity-label">手动选择数量</span>
-                            <div class="quantity-editor">
-                                <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
-                                <input type="number" class="qty-input" value="${product.quantity}" min="1" onchange="updateQuantity(${index}, this.value)">
-                                <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
-                            </div>
-                        </div>
                         <div class="barcode-summary-row">
-                            <span class="barcode-summary-label">扫描/输入条码明细</span>
+                            <span class="barcode-summary-label">扫描/输入编码明细</span>
                             <span class="barcode-count">${barcodeCount}件</span>
                         </div>
                         <div class="barcode-details">
@@ -951,7 +943,7 @@
             const newQuantity = product.quantity + delta;
             if (newQuantity >= 1) {
                 product.quantity = newQuantity;
-                // 同步条码数量与手动输入数量
+                // 同步编码数量与手动输入数量
                 syncBarcodeQuantity(product);
                 renderProductList();
                 updateItemCount();
@@ -963,20 +955,20 @@
             const quantity = parseInt(value);
             if (quantity >= 1) {
                 checkedProducts[index].quantity = quantity;
-                // 同步条码数量与手动输入数量
+                // 同步编码数量与手动输入数量
                 syncBarcodeQuantity(checkedProducts[index]);
                 renderProductList();
                 updateItemCount();
             }
         }
 
-        // 同步条码数量与手动输入数量
+        // 同步编码数量与手动输入数量
         function syncBarcodeQuantity(product) {
             const currentBarcodeCount = product.barcodes.length;
             const targetQuantity = product.quantity;
             
             if (targetQuantity > currentBarcodeCount) {
-                // 需要添加条码
+                // 需要添加编码
                 const diff = targetQuantity - currentBarcodeCount;
                 for (let i = 0; i < diff; i++) {
                     const batchNo = 'B' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(currentBarcodeCount + i).padStart(3, '0');
@@ -989,12 +981,12 @@
                     });
                 }
             } else if (targetQuantity < currentBarcodeCount) {
-                // 需要删除多余的条码
+                // 需要删除多余的编码
                 product.barcodes.splice(targetQuantity);
             }
         }
 
-        // 删除条码
+        // 删除编码
         function deleteBarcode(productIndex, barcodeIndex) {
             const product = checkedProducts[productIndex];
             product.barcodes.splice(barcodeIndex, 1);
@@ -1002,7 +994,7 @@
             // 同步手动输入数量
             product.quantity = product.barcodes.length;
             
-            // 如果没有条码了，删除整个商品
+            // 如果没有编码了，删除整个商品
             if (product.barcodes.length === 0) {
                 checkedProducts.splice(productIndex, 1);
             }
