@@ -689,13 +689,14 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th>批次号</th>
+                                    <th>变更类型</th>
+                                    <th>变更前数量</th>
+                                    <th>变更数量</th>
+                                    <th>变更后数量</th>
                                     <th>单据号</th>
-                                    <th>关联单号</th>
-                                    <th>单据类型</th>
-                                    <th>商品唯一编码</th>
-                                    <th>批次</th>
-                                    <th>变动时间</th>
                                     <th>操作人</th>
+                                    <th>操作时间</th>
                                 </tr>
                             </thead>
                             <tbody id="stock-flow-table-body">
@@ -703,7 +704,7 @@
                         </table>
                         <!-- 分页器 -->
                         <div class="pagination" style="margin-top: 15px;">
-                            <span class="page-info">共 5 条数据</span>
+                            <span class="page-info">共 10 条数据</span>
                             <div class="page-controls">
                                 <button class="page-btn">上一页</button>
                                 <button class="page-btn active">1</button>
@@ -872,49 +873,84 @@
                     const tableBody = document.getElementById('stock-flow-table-body');
                     tableBody.innerHTML = `
                         <tr>
+                            <td>${batchNumber}</td>
+                            <td>采购入库</td>
+                            <td>0</td>
+                            <td>50</td>
+                            <td>50</td>
                             <td>IN00000001</td>
-                            <td>C260301001</td>
-                            <td>盘盈入库</td>
-                            <td>08290B0010002384</td>
-                            <td>B56033</td>
+                            <td>张三</td>
                             <td>2026-03-01 09:00:00</td>
-                            <td>张三</td>
                         </tr>
                         <tr>
+                            <td>${batchNumber}</td>
+                            <td>领用出库</td>
+                            <td>50</td>
+                            <td>-3</td>
+                            <td>47</td>
                             <td>OUT00000001</td>
-                            <td>C260315002</td>
-                            <td>盘亏出库</td>
-                            <td>08290B0010002385</td>
-                            <td>B56034</td>
-                            <td>2026-03-15 10:30:00</td>
                             <td>张三</td>
+                            <td>2026-03-15 10:30:00</td>
                         </tr>
                         <tr>
+                            <td>${batchNumber}</td>
+                            <td>调拨出库</td>
+                            <td>47</td>
+                            <td>-2</td>
+                            <td>45</td>
                             <td>OUT00000002</td>
-                            <td>C260320003</td>
-                            <td>盘亏出库</td>
-                            <td>08290B0010002386</td>
-                            <td>B56035</td>
-                            <td>2026-03-20 14:20:00</td>
                             <td>李四</td>
+                            <td>2026-03-20 14:20:00</td>
                         </tr>
                         <tr>
+                            <td>${batchNumber}</td>
+                            <td>库存入库</td>
+                            <td>45</td>
+                            <td>5</td>
+                            <td>50</td>
                             <td>IN00000002</td>
-                            <td>C260322004</td>
-                            <td>盘盈入库</td>
-                            <td>08290B0010002387</td>
-                            <td>B56036</td>
-                            <td>2026-03-22 11:00:00</td>
                             <td>王五</td>
+                            <td>2026-03-22 11:00:00</td>
                         </tr>
                         <tr>
-                            <td>C260310092522432</td>
-                            <td>C260325005</td>
+                            <td>${batchNumber}</td>
                             <td>盘亏出库</td>
-                            <td>08290B0010002388</td>
-                            <td>B56037</td>
-                            <td>2026-03-25 09:15:00</td>
+                            <td>50</td>
+                            <td>-1</td>
+                            <td>49</td>
+                            <td>C260310092522432</td>
                             <td>王五</td>
+                            <td>2026-03-25 09:15:00</td>
+                        </tr>
+                        <tr>
+                            <td>${batchNumber}</td>
+                            <td>调拨入库</td>
+                            <td>49</td>
+                            <td>10</td>
+                            <td>59</td>
+                            <td>IN00000003</td>
+                            <td>赵六</td>
+                            <td>2026-03-28 14:00:00</td>
+                        </tr>
+                        <tr>
+                            <td>${batchNumber}</td>
+                            <td>其他出库</td>
+                            <td>59</td>
+                            <td>-5</td>
+                            <td>54</td>
+                            <td>OUT00000003</td>
+                            <td>赵六</td>
+                            <td>2026-03-30 16:45:00</td>
+                        </tr>
+                        <tr>
+                            <td>${batchNumber}</td>
+                            <td>领用出库</td>
+                            <td>54</td>
+                            <td>-4</td>
+                            <td>50</td>
+                            <td>OUT00000004</td>
+                            <td>张三</td>
+                            <td>2026-04-05 11:00:00</td>
                         </tr>
                     `;
                     

@@ -274,6 +274,43 @@
             margin-bottom: 12px;
             padding-bottom: 12px;
             border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background-color: #ff6b81;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+            line-height: 1.4;
+            text-align: left;
+            margin-bottom: 4px;
+        }
+
+        .stock-info {
+            font-size: 14px;
+            color: #666666;
+            text-align: left;
         }
 
         .product-header-row {
@@ -281,16 +318,6 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 8px;
-        }
-
-        .product-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333333;
-            flex: 1;
-            line-height: 1.4;
-            text-align: left;
-            margin-right: 12px;
         }
 
         .product-info-row {
@@ -930,59 +957,24 @@
                 html += `
                     <div class="product-card" data-index="${index}">
                         <div class="product-header">
-                            <div class="product-header-row">
+                            <div class="product-image">CHLITINA<br>克丽缇娜</div>
+                            <div class="product-info">
                                 <div class="product-name">${product.name}</div>
-                                ${isEditMode ? `<button class="delete-product-btn" onclick="deleteProduct(${index})">
-                                    <svg class="linear-icon" style="width: 18px; height: 18px; color: #ff6b81;" viewBox="0 0 24 24">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>` : ''}
-                            </div>
-                            <div class="product-info-row">
-                                <div class="product-spec">${product.specification}</div>
-                                <div class="product-total">
-                                    <span class="product-total-label">小计</span>
-                                    <span class="product-total-value" id="product-total-${index}">${totalCount}</span>
+                                <div class="stock-info">
+                                    实际 ${totalCount} | 系统 ${totalCount}
+                                    <span style="color: #52c41a;">一致</span>
                                 </div>
                             </div>
+                            ${isEditMode ? `<button class="delete-product-btn" onclick="deleteProduct(${index})"><svg class="linear-icon" style="width: 18px; height: 18px; color: #ff6b81;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
                         </div>
                         <div class="barcode-summary-row">
                             <span class="barcode-summary-label">门店自有商品数量</span>
-                            ${isEditMode ? `
-                            <div class="quantity-editor">
-                                <button class="qty-btn" onclick="changeStoreQuantity(${index}, -1)">-</button>
-                                <input type="number" class="qty-input" value="${storeCount}" min="0" id="store-qty-${index}" onchange="updateStoreQuantity(${index}, this.value)">
-                                <button class="qty-btn" onclick="changeStoreQuantity(${index}, 1)">+</button>
-                            </div>
-                            ` : `<span class="barcode-count">${storeCount}件</span>`}
+                            ${isEditMode ? `<div class="quantity-editor"><button class="qty-btn" onclick="changeStoreQuantity(${index}, -1)">-</button><input type="number" class="qty-input" value="${storeCount}" min="0" id="store-qty-${index}" onchange="updateStoreQuantity(${index}, this.value)"><button class="qty-btn" onclick="changeStoreQuantity(${index}, 1)">+</button></div>` : `<span class="barcode-count">${storeCount}件</span>`}
                         </div>
-                        ${creditCount > 0 ? `
-                        <div class="barcode-summary-row">
-                            <span class="barcode-summary-label">赊销库存商品数量</span>
-                            <span class="barcode-count">${creditCount}件</span>
-                        </div>
-                        <div class="barcode-details">
-                            ${creditBarcodes.map((barcode, barcodeIndex) => {
+                        ${creditCount > 0 ? `<div class="barcode-summary-row"><span class="barcode-summary-label">赊销库存商品数量</span><span class="barcode-count">${creditCount}件</span></div><div class="barcode-details">${creditBarcodes.map((barcode, barcodeIndex) => {
                                 const originalIndex = product.barcodes.indexOf(barcode);
-                                return `
-                                <div class="barcode-row">
-                                    <span>${barcode.batchNo}</span>
-                                    <span>${barcode.barcode}</span>
-                                    <span class="stock-type credit">${barcode.stockType}</span>
-                                    ${isEditMode ? `
-                                    <button class="delete-btn" onclick="deleteBarcode(${index}, ${originalIndex})">
-                                        <svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24">
-                                            <polyline points="3 6 5 6 21 6"></polyline>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                        </svg>
-                                    </button>
-                                    ` : ''}
-                                </div>
-                                `;
-                            }).join('')}
-                        </div>
-                        ` : ''}
+                                return `<div class="barcode-row"><span>${barcode.batchNo}</span><span>${barcode.barcode}</span><span class="stock-type credit">${barcode.stockType}</span>${isEditMode ? `<button class="delete-btn" onclick="deleteBarcode(${index}, ${originalIndex})"><svg class="linear-icon" style="width: 16px; height: 16px; color: #ff6b81;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}</div>`;
+                            }).join('')}</div>` : ''}
                     </div>
                 `;
             });
