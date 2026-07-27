@@ -1,24 +1,20 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支出记账</title>
-    <link rel="stylesheet" href="../chlitina-brand.css">
-    <script defer src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>支出记账</title>
+<link href="https://modao.cc/agent-py/workspace/6a2cc2a17b244251cbb7eae6/chlitina-brand.css" rel="stylesheet"/>
+<script defer="" src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{
-            --primary:#0D9488;--primary-light:#14B8A6;--primary-dark:#0F766E;
-            --bg-main:#F0FBFA;--bg-card:#FFFFFF;--bg-hover:#ECFDFD;--border:#CCFBF1;
-            --text-primary:#1F2937;--text-secondary:#6B7280;--text-muted:#9CA3AF;
-            --success:#10B981;--warning:#F59E0B;--error:#EF4444;--info:#3B82F6;
-            --pink:#EC4899;--gold:#F59E0B;--purple:#8B5CF6;--rose:#F43F5E;
-        }
         :root{
             --primary:#E87C9A;--primary-light:#F1A3B8;--primary-dark:#B75A70;
             --bg-main:#f7f8fa;--bg-card:#FFFFFF;--bg-hover:#FFF7FA;--border:#E5E7EB;
             --text-primary:#111827;--text-secondary:#374151;--text-muted:#6B7280;
+            --rose:#F43F5E;--success:#10B981;--warning:#F59E0B;--error:#EF4444;--info:#3B82F6;
         }
         body{font-family:'Noto Sans SC','Inter',sans-serif;background:var(--bg-main);color:var(--text-primary);height:100vh;overflow:hidden}
         .app{display:flex;height:100vh}
@@ -42,6 +38,7 @@
 
         .page-header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:20px 30px;display:flex;justify-content:space-between;align-items:center}
         .page-title{font-size:20px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:10px}
+        .page-title-sub{display:none}
         .page-title-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg, var(--primary-light), var(--primary));display:flex;align-items:center;justify-content:center;color:white}
         .page-actions{display:flex;gap:12px}
         .btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:6px}
@@ -98,12 +95,38 @@
         tbody tr:hover{background:var(--bg-hover)}
         tbody tr:last-child td{border-bottom:none}
 
+        /* --- Mobile Expense Cards --- */
+        .expense-card-container{display:none}
+        .expense-card{background:var(--bg-card);border-radius:12px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.08);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;transition:all .2s}
+        .expense-card:active{transform:scale(.99)}
+        .expense-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+        .expense-card-label{font-size:12px;color:var(--text-muted);font-weight:500;flex-shrink:0;min-width:56px}
+        .expense-card-value{font-size:13px;color:var(--text-primary);text-align:right}
+        .expense-card-category{display:inline-block;padding:3px 10px;border-radius:6px;background:var(--bg-main);color:var(--primary);font-size:12px;font-weight:600}
+        .expense-card-amount{font-size:18px;font-weight:700;color:var(--rose);font-family:'Inter',sans-serif}
+        .expense-card-person{display:flex;align-items:center;gap:8px}
+        .expense-card-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg, var(--primary-light), var(--primary));display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600}
+        .expense-card-actions{display:flex;gap:8px;margin-top:2px}
+        .expense-card-action-btn{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+        .expense-card-action-btn:hover{background:var(--bg-main)}
+        .expense-card-action-btn svg{width:14px;height:14px;color:var(--text-muted)}
+        .expense-card-action-btn:hover svg{color:var(--primary)}
+        .expense-card-divider{height:1px;background:var(--border);margin:2px 0}
+
         .category-text{font-size:13px;color:var(--text-secondary);font-weight:500}
 
         .amount{font-weight:600;font-family:'Inter',sans-serif;color:var(--rose)}
 
         .person-info{display:flex;align-items:center;gap:8px}
         .person-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg, var(--primary-light), var(--primary));display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:600}
+        .person-selector{display:flex;gap:10px;overflow-x:auto;padding:4px 0;-webkit-overflow-scrolling:touch}
+        .person-selector::-webkit-scrollbar{display:none}
+        .person-option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;min-width:80px;flex-shrink:0;background:var(--bg-card)}
+        .person-option:hover{border-color:var(--primary);background:var(--bg-hover)}
+        .person-option.selected{border-color:var(--primary);background:rgba(232,124,154,.08);color:var(--primary-dark)}
+        .person-avatar-sm{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, var(--primary-light), var(--primary));display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600}
+        .person-option span{font-size:12px;color:var(--text-secondary);font-weight:500}
+        .person-option.selected span{color:var(--primary-dark)}
 
         .action-btns{display:flex;gap:6px}
         .action-btn{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -134,7 +157,7 @@
         .modal-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600;background:var(--bg-card)}
         .modal-tab-badge{background:var(--rose);color:white;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
 
-        .modal-body{overflow:hidden;max-height:calc(90vh - 140px)}
+        .modal-body{overflow-y:auto;max-height:calc(90vh - 140px)}
         .modal-view{display:none;flex-direction:column;overflow:hidden}
         .modal-view.active{display:flex}
 
@@ -173,6 +196,8 @@
         .form-label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
         .form-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);font-size:13px;outline:none;transition:all .2s;font-family:inherit}
         .form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(232,124,154,.1)}
+        .form-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer;color:var(--text-primary)}
+        .form-select option{color:var(--text-primary)}
 
         .modal-footer{padding:20px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
 
@@ -216,100 +241,155 @@
 
         @media(max-width:1200px){.stats-bar{grid-template-columns:repeat(2, 1fr)}}
         @media(max-width:768px){
+            html,body{width:100%;max-width:100%;overflow-x:hidden}
+            .chl-layout,.chl-page-scroll,.app,.main-area,.content-area{width:100%;max-width:100%;overflow-x:hidden}
             body{height:auto;min-height:100vh;overflow:auto}
-            .chl-topbar{display:none}
+            .chl-topbar{display:none !important}
             .chl-page-scroll{min-height:100vh;overflow:visible}
-            .content-area{padding:16px;}
-            .content-head{align-items:stretch;gap:12px}
-            .page-title{font-size:18px}
+            .content-area{padding:16px}
+            .content-head{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+            .content-head > *{min-width:0}
+            .page-title{font-size:18px;min-width:0;flex-wrap:wrap}
             .page-title-icon{width:32px;height:32px}
-            .page-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+            .page-title-sub{display:block;font-size:12px;color:var(--text-muted);font-weight:400;margin-top:2px}
+            .page-actions{width:100%;display:grid;grid-template-columns:1fr;gap:10px}
             button[onclick="exportData()"]{display:none}
-            .page-actions .btn{justify-content:center;padding:0 12px;height:40px}
-            .stats-bar{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-            .stat-card{padding:16px}
-            .stat-value{font-size:20px}
+            .page-actions .btn{justify-content:center;padding:0 12px;height:42px;border-radius:12px}
+            .page-actions .btn-primary{background:var(--primary);color:white}
+
+            /* Stats bar: 2x2 grid on mobile */
+            .stats-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;background:#fafbfc;border-radius:14px;margin-bottom:20px}
+            .stat-card{padding:12px;box-shadow:0 1px 8px rgba(0,0,0,0.06);border:1px solid #f0f0f0;border-radius:12px}
+            .stat-value{font-size:22px;font-weight:700;color:var(--text-primary)}
+            .stat-label{font-size:11px;color:var(--text-muted);font-weight:500}
+            .stat-change{font-size:11px;color:var(--text-muted);margin-top:2px}
+            .stats-bar,.stat-card,.panel{min-width:0;max-width:100%}
             .panel{border-radius:14px}
             .panel-header{padding:16px}
             .panel-title-row{align-items:center}
             .mobile-filter-btn{display:inline-flex}
+
+            /* Hide desktop table, show cards */
+            .table-container table{display:none}
+            .table-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
+            .expense-card-container{display:flex;flex-direction:column;gap:12px;padding:8px 0}
+
+            /* Expense cards redesign */
+            .expense-card{
+                background:#fff;border-radius:14px;padding:14px 16px;
+                box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid var(--border);
+                display:flex;flex-direction:column;gap:0;transition:all .2s
+            }
+            .expense-card:active{transform:scale(.99)}
+            .expense-card-category{
+                display:inline-block;padding:3px 12px;border-radius:20px;
+                background:var(--primary);color:#fff;font-size:11px;font-weight:600;margin-bottom:6px;align-self:flex-start
+            }
+            .expense-card-project-name{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+            .expense-card-amount{font-size:20px;font-weight:700;color:#1F2937;font-family:'Inter',sans-serif;margin-bottom:8px}
+            .expense-card-meta{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--text-muted);margin-bottom:8px}
+            .expense-card-meta span{display:flex;align-items:center;gap:4px}
+            .expense-card-divider{height:1px;background:#f0f0f0;margin:8px 0}
+            .expense-card-actions{display:flex;justify-content:flex-end;gap:8px}
+            .expense-card-action-btn{
+                width:36px;height:36px;border-radius:50%;border:none;background:transparent;
+                cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s
+            }
+            .expense-card-action-btn:hover{background:var(--bg-main)}
+            .expense-card-action-btn svg{width:15px;height:15px;color:var(--text-muted)}
+            .expense-card-action-btn:hover svg{color:var(--primary)}
+            .expense-card .expense-card-row{display:none}
+
+            /* Filter panel redesign */
             .panel-tools{
-                position:fixed;inset:0;z-index:1200;background:rgba(17,24,39,0.44);
+                position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.45);
                 padding:16px;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;
                 opacity:0;pointer-events:none;transition:opacity .2s ease
             }
-            .mobile-filter-panel{display:flex;flex-direction:column}
-            .panel-tools::before{
-                content:'';position:absolute;inset:0
-            }
+            .mobile-filter-panel{display:flex;flex-direction:column;background:var(--bg-card);border-radius:16px 16px 0 0;box-shadow:0 -16px 40px rgba(17,24,39,.18);width:min(100%, 420px);margin:0 auto;box-sizing:border-box;max-height:70vh;display:flex;flex-direction:column;overflow:auto;padding:20px 18px 18px;gap:12px}
+            .panel-tools::before{content:'';position:absolute;inset:0}
             .panel-tools > *{position:relative;z-index:1}
-            .mobile-filter-head{
-                display:flex;align-items:center;justify-content:space-between;gap:12px;
-                padding:0 0 6px;color:var(--text-primary)
-            }
+            .mobile-filter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 6px;color:var(--text-primary)}
             .mobile-filter-title{font-size:16px;font-weight:700}
             .panel-tools .search-box,
             .panel-tools > .filter-select,
             .date-filter-group,
-            .filter-actions{
-                width:100%;min-width:0;flex:none
-            }
+            .filter-actions{width:100%;min-width:0;flex:none}
             .panel-tools .search-box input,
-            .panel-tools .filter-select{width:100%;min-width:0;height:40px}
+            .panel-tools .filter-select{width:100%;min-width:0;height:40px;border-radius:10px}
             .panel-tools .search-box,
             .panel-tools > .filter-select,
             .date-filter-group,
-            .filter-actions{
-                padding-left:0;padding-right:0
-            }
+            .filter-actions{padding-left:0;padding-right:0}
             .panel-tools .search-box{padding-top:0}
-            .date-filter-group{
-                display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-                padding-top:0;gap:10px;align-items:center
-            }
+            .date-filter-group{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);padding-top:0;gap:10px;align-items:center}
             .date-filter-group span{display:flex;align-items:center;justify-content:center}
             .date-filter-group .filter-select{width:100%;min-width:0}
             .filter-actions{
-                display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:12px;padding-bottom:16px;
-                border-radius:0 0 18px 18px;position:sticky;bottom:0;box-shadow:0 -8px 16px rgba(17,24,39,.04)
+                display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:12px;
+                padding-bottom:calc(12px + env(safe-area-inset-bottom, 8px));
+                border-radius:0 0 18px 18px;position:sticky;bottom:0;box-shadow:0 -4px 12px rgba(0,0,0,0.06)
             }
-            .filter-actions .btn{width:100%;justify-content:center}
-            .mobile-filter-panel{
-                background:var(--bg-card);border-radius:18px 18px 0 0;box-shadow:0 -16px 40px rgba(17,24,39,.18);
-                width:min(100%, 420px);margin:0 auto;box-sizing:border-box;
-                min-height:min(76vh,620px);max-height:min(90vh,780px);
-                display:flex;flex-direction:column;overflow:auto;padding:20px 18px 18px;gap:14px
-            }
+            .filter-actions .btn{width:100%;justify-content:center;height:42px;border-radius:10px}
             body.expense-mobile-filter-open .panel-tools{opacity:1;pointer-events:auto}
             body.expense-mobile-filter-open .chl-page-scroll{overflow:hidden}
-            .table-container{margin:0 -16px;padding:0 16px}
-            table{min-width:720px}
-            thead th,tbody td{padding:12px 12px}
-            .pagination{flex-wrap:nowrap;justify-content:flex-start;padding:14px 16px;overflow-x:auto;overflow-y:hidden;white-space:nowrap}
-            .page-info{width:auto;flex:0 0 auto;margin-right:8px}
-            .modal-overlay{padding:12px}
+
+            /* Drop the min-height from mobile filter panel */
+            .mobile-filter-panel{min-height:auto}
+
+            /* Modal full-screen on mobile - redesigned */
+            .modal-overlay{padding:0;background:rgba(0,0,0,0.45)}
             .modal{
-                width:calc(100vw - 24px);max-width:none;height:calc(100vh - 24px);max-height:calc(100vh - 24px);
-                display:flex;flex-direction:column;border-radius:18px
+                width:100vw;max-width:none;height:100vh;max-height:100vh;
+                border-radius:16px 16px 0 0;display:flex;flex-direction:column;animation:modalInMobile .3s ease
             }
-            .modal-header{padding:16px 16px 14px}
+            @keyframes modalInMobile{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+            .modal-header{padding:16px 16px 14px;justify-content:center;position:relative;border-bottom:1px solid var(--border)}
+            .modal-header .modal-close{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px}
+            .modal-title{font-size:16px;font-weight:600}
             .modal-search{padding:12px 16px}
             .modal-body{flex:1;min-height:0;max-height:none;display:flex;flex-direction:column}
             #addView{display:flex;flex-direction:column;flex:1;min-height:0}
             .modal-split{flex-direction:column;min-height:0;flex:1}
-            .modal-left{width:100%;max-height:168px;border-right:none;border-bottom:1px solid var(--border)}
-            .modal-left-item{padding:12px 14px}
+            .modal-left{width:100%;max-height:180px;overflow-y:auto;border-right:none;border-bottom:1px solid var(--border)}
+            .modal-left-item{padding:12px 14px;min-height:40px;border-radius:8px;margin:2px 8px;border:1px solid transparent;font-size:13px}
+            .modal-left-item.active{background:var(--primary);color:#fff;border-color:var(--primary);border-left-color:var(--primary)}
+            .modal-left-item:not(.active){border:1px solid #e5e7eb;color:var(--text-secondary)}
             .modal-right{padding:16px;min-height:0}
-            .project-grid{grid-template-columns:1fr}
+            .project-grid{grid-template-columns:1fr 1fr;gap:10px}
             .modal-form{padding:16px}
             .form-row{grid-template-columns:1fr}
-            .form-input{height:40px}
-            .modal-footer{padding:14px 16px;background:var(--bg-card);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-            .modal-footer .btn{width:100%;justify-content:center;height:40px;padding:0 12px}
+            .form-group{margin-bottom:14px}
+            .form-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-bottom:6px;display:block}
+            .form-input{height:42px;border-radius:10px;border:1px solid #e5e7eb}
+            .modal-footer{
+                padding:14px 16px;padding-bottom:calc(16px + env(safe-area-inset-bottom, 8px));
+                background:var(--bg-card);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+                border-top:1px solid var(--border);flex-shrink:0
+            }
+            .modal-footer .btn{width:100%;justify-content:center;height:46px;padding:0 12px;font-size:15px;border-radius:12px}
+            .modal-footer .btn-secondary{background:#f3f4f6;color:var(--text-secondary);border:none}
+
+            /* Pagination mobile - touch friendly */
+            .pagination{
+                display:flex;align-items:center;flex-wrap:nowrap;justify-content:center;
+                padding:14px 16px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;gap:4px
+            }
+            .page-btn{min-width:38px;min-height:38px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);font-size:12px;cursor:pointer;transition:all .2s;color:var(--text-secondary)}
+            .page-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+            .page-info{width:auto;flex:0 0 auto;margin-right:4px;font-size:12px;color:var(--text-muted)}
+            .page-btn:disabled{opacity:.5;cursor:not-allowed}
+
+            /* Filter stats bar on mobile */
+            .filter-stats-bar{
+                display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;font-size:12px;
+                background:#f9fafb;border-radius:10px;color:var(--text-secondary);justify-content:center;margin:0 0 8px
+            }
+            .filter-stats-bar .stats-value.amount{font-size:13px;font-weight:700;color:#1F2937}
+            .filter-stats-bar .stats-value{font-weight:600;color:var(--primary)}
         }
         @media(max-width:480px){
-            .stats-bar{grid-template-columns:repeat(2,minmax(0,1fr))}
-            .page-actions{grid-template-columns:1fr}
+            .stats-bar{grid-template-columns:1fr}
         }
 
         .chl-layout{display:flex;flex-direction:column;height:100vh}
@@ -336,554 +416,593 @@
         .main-area{min-height:0}
         .content-area{min-height:0}
         .content-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:16px;flex-wrap:wrap}
-        @media(max-width:768px){
-            html,body{width:100%;max-width:100%;overflow-x:hidden}
-            .chl-layout,.chl-page-scroll,.app,.main-area,.content-area{width:100%;max-width:100%;overflow-x:hidden}
-            .chl-topbar{display:none !important}
-            .chl-page-scroll{min-height:100vh;overflow:visible}
-            .content-area{padding:16px;}
-            .content-head{display:flex;flex-direction:column;align-items:stretch;gap:12px}
-            .content-head > *{min-width:0}
-            .page-title{min-width:0;flex-wrap:wrap}
-            .page-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-            .page-actions .btn{width:100%;justify-content:center}
-            .stats-bar{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-            .stats-bar,.stat-card,.panel{min-width:0;max-width:100%}
-            .table-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
-            .pagination{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;overflow-x:auto;overflow-y:hidden;white-space:nowrap}
-            .page-info{width:auto;flex:0 0 auto;margin-right:8px}
-        }
-        @media(max-width:480px){
-            .page-actions{grid-template-columns:1fr}
-            .stats-bar{grid-template-columns:repeat(2,minmax(0,1fr))}
-        }
-    </style>
+
+        /* ===== Mobile Immersive Add View ===== */
+        #mobileAddView{display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:20px 20px 0}
+        .mobile-category-selector{display:flex;align-items:center;justify-content:space-between;background:#f9fafb;border-radius:12px;padding:12px 16px;margin-bottom:20px;cursor:pointer;border:1px solid #f0f0f0;transition:all .2s}
+        .mobile-category-selector:active{background:#f3f4f6;transform:scale(.98)}
+        .mobile-category-tag{display:flex;align-items:center;gap:10px}
+        .mobile-category-dot{width:8px;height:8px;border-radius:50%}
+        #mobileCategoryName{font-size:16px;font-weight:600;color:#1F2937}
+        .mobile-chevron{transition:transform .2s}
+        .mobile-amount-area{display:flex;align-items:center;gap:8px;margin-bottom:24px;padding:0 4px}
+        .mobile-amount-prefix{font-size:28px;font-weight:700;color:#1F2937}
+        .mobile-amount-input{flex:1;font-size:32px;font-weight:700;color:#1F2937;border:none;outline:none;background:transparent;padding:4px 0;font-family:inherit}
+        .mobile-amount-input::placeholder{color:#D1D5DB}
+        .mobile-project-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+        .mobile-project-section-title{font-size:13px;font-weight:600;color:#6B7280;letter-spacing:.5px;text-transform:uppercase}
+        .mobile-project-search{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid #E5E7EB;cursor:text;transition:all .2s}
+        .mobile-project-search.expanded{border-color:var(--primary);box-shadow:0 0 0 2px rgba(232,124,154,.1);flex:1;max-width:200px}
+        .mobile-project-search-input{border:none;outline:none;font-size:12px;width:80px;background:transparent;font-family:inherit}
+        .mobile-project-search-input::placeholder{color:#9CA3AF}
+        .mobile-project-search.expanded .mobile-project-search-input{width:100%}
+        .mobile-project-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+        .mobile-project-item{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:10px;border:1.5px solid #E5E7EB;background:#FFFFFF;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:#374151}
+        .mobile-project-item:active{transform:scale(.97)}
+        .mobile-project-item.selected{border-color:var(--primary);background:rgba(232,124,154,.06);color:var(--primary-dark)}
+        .mobile-project-item .mobile-check{width:18px;height:18px;border-radius:50%;border:2px solid #D1D5DB;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+        .mobile-project-item.selected .mobile-check{border-color:var(--primary);background:var(--primary)}
+        .mobile-project-item.selected .mobile-check::after{content:'';width:5px;height:8px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);margin-bottom:2px}
+        .mobile-add-custom-project{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;border:1.5px dashed #D1D5DB;cursor:pointer;font-size:12px;color:#9CA3AF;transition:all .2s;background:transparent;margin-top:2px}
+        .mobile-add-custom-project:hover{border-color:var(--primary);color:var(--primary);background:rgba(232,124,154,.04)}
+        .mobile-add-custom-project svg{width:14px;height:14px}
+        .mobile-form-divider{height:1px;background:#F0F0F0;margin:4px 0 16px}
+        .mobile-form-fields{display:flex;flex-direction:column;gap:2px}
+        .mobile-field-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;border-bottom:1px solid #F3F4F6;min-height:48px}
+        .mobile-field-row:last-child{border-bottom:none}
+        .mobile-field-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+        .mobile-field-content{flex:1;display:flex;flex-direction:column;gap:2px}
+        .mobile-field-label{font-size:11px;color:#9CA3AF;font-weight:500}
+        .mobile-field-value{font-size:15px;color:#1F2937;font-weight:500}
+        .mobile-field-arrow{flex-shrink:0;color:#D1D5DB}
+        .mobile-note-input{border:none;outline:none;font-size:15px;color:#1F2937;padding:0;background:transparent;width:100%;font-family:inherit}
+        .mobile-note-input::placeholder{color:#D1D5DB}
+        .mobile-category-sheet{position:fixed;left:0;right:0;bottom:0;z-index:1300;background:#FFFFFF;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.12);transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:70vh;display:flex;flex-direction:column}
+        .mobile-category-sheet.active{transform:translateY(0)}
+        .mobile-category-sheet-header{display:flex;align-items:center;justify-content:center;padding:16px 20px;border-bottom:1px solid #F3F4F6;position:relative}
+        .mobile-category-sheet-title{font-size:16px;font-weight:600;color:#1F2937}
+        .mobile-category-sheet-close{position:absolute;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:#F3F4F6;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .mobile-category-sheet-body{overflow-y:auto;padding:8px 16px 20px;flex:1}
+        .mobile-category-sheet-item{display:flex;align-items:center;justify-content:space-between;padding:14px 12px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:4px}
+        .mobile-category-sheet-item:active{background:#F9FAFB}
+        .mobile-category-sheet-item.selected{background:rgba(232,124,154,.08)}
+        .mobile-category-sheet-item-left{display:flex;align-items:center;gap:12px}
+        .mobile-category-sheet-dot{width:10px;height:10px;border-radius:50%}
+        .mobile-category-sheet-name{font-size:15px;font-weight:500;color:#374151}
+        .mobile-category-sheet-item.selected .mobile-category-sheet-name{color:var(--primary);font-weight:600}
+        .mobile-category-sheet-check{width:20px;height:20px;border-radius:50%;background:var(--primary);display:none;align-items:center;justify-content:center}
+        .mobile-category-sheet-item.selected .mobile-category-sheet-check{display:flex}
+        .mobile-category-sheet-check::after{content:'';width:5px;height:8px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);margin-bottom:1px}
+        .mobile-category-sheet-add{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;margin-top:8px;border-radius:12px;border:1.5px dashed #D1D5DB;cursor:pointer;color:#9CA3AF;font-size:13px;transition:all .2s}
+        .mobile-category-sheet-add:hover{border-color:var(--primary);color:var(--primary)}
+        .mobile-sheet-overlay{position:fixed;inset:0;z-index:1250;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s ease}
+        .mobile-sheet-overlay.active{opacity:1;pointer-events:auto}
+        </style>
 </head>
 <body>
-    <div class="chl-layout">
-        <div class="chl-topbar">
-            <div class="chl-topbar-left">
-                <a class="chl-back" href="report-entry-pad.html" aria-label="返回">
-                    <iconify-icon class="text-2xl" icon="mdi:arrow-left"></iconify-icon>
-                </a>
-                <div class="chl-brand">
-                    <span>CHLITINA</span>&nbsp;克丽缇娜
+<div class="chl-layout">
+<div class="chl-topbar">
+<div class="chl-topbar-left">
+<a aria-label="返回" class="chl-back" href="https://modao.cc/agent-py/workspace/6a2cc2a17b244251cbb7eae6/6-expense-bookkeeping.html/report-entry-pad.html?render_html=true">
+<iconify-icon class="text-2xl" icon="mdi:arrow-left"></iconify-icon>
+</a>
+<div class="chl-brand">
+<span>CHLITINA</span> 克丽缇娜
                 </div>
-                <div class="chl-store">
-                    <span>测试店1</span>
-                    <iconify-icon icon="mdi:chevron-down"></iconify-icon>
-                </div>
-            </div>
-            <div class="chl-topbar-right">
-                <button class="chl-icon-btn" type="button" aria-label="通知">
-                    <iconify-icon class="text-lg" icon="mdi:bell-outline"></iconify-icon>
-                </button>
-                <span class="chl-meta-strong">23:04</span>
-                <span class="chl-meta">6月2日 周二</span>
-                <iconify-icon class="text-base" icon="mdi:wifi"></iconify-icon>
-                <span class="chl-meta">24%</span>
-                <div class="chl-user">
-                    <img alt="User Avatar" src="https://modao.cc/agent-py/media/generated_images/2026-06-02/32a78f2a4eba4942bec808cd867a35a9.jpg"/>
-                    <span class="chl-user-name">roger</span>
-                    <span class="chl-user-role">店总</span>
-                </div>
-            </div>
-        </div>
-        <div class="chl-page-scroll">
-            <div class="app">
-                <div class="main-area">
-                    <div class="content-area">
-                        <div class="content-head">
-                            <div class="page-title">
-                                <div class="page-title-icon">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="2" y="3" width="20" height="14" rx="2"/>
-                                        <line x1="8" y1="21" x2="16" y2="21"/>
-                                        <line x1="12" y1="17" x2="12" y2="21"/>
-                                    </svg>
-                                </div>
+<div class="chl-store">
+<span>测试店1</span>
+<iconify-icon icon="mdi:chevron-down"></iconify-icon>
+</div>
+</div>
+<div class="chl-topbar-right">
+<button aria-label="通知" class="chl-icon-btn" type="button">
+<iconify-icon class="text-lg" icon="mdi:bell-outline"></iconify-icon>
+</button>
+<span class="chl-meta-strong">23:04</span>
+<span class="chl-meta">6月2日 周二</span>
+<iconify-icon class="text-base" icon="mdi:wifi"></iconify-icon>
+<span class="chl-meta">24%</span>
+<div class="chl-user">
+<img alt="User Avatar" src="https://modao.cc/agent-py/media/generated_images/2026-06-02/32a78f2a4eba4942bec808cd867a35a9.jpg"/>
+<span class="chl-user-name">roger</span>
+<span class="chl-user-role">店总</span>
+</div>
+</div>
+</div>
+<div class="chl-page-scroll">
+<div class="app">
+<div class="main-area">
+<div class="content-area">
+<div class="content-head">
+<div class="page-title">
+<div class="page-title-icon">
+<svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18">
+<rect height="14" rx="2" width="20" x="2" y="3"></rect>
+<line x1="8" x2="16" y1="21" y2="21"></line>
+<line x1="12" x2="12" y1="17" y2="21"></line>
+</svg>
+</div>
                                 费用支出记账
-                            </div>
-                            <div class="page-actions">
-                                <button class="btn btn-secondary" onclick="exportData()">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                        <polyline points="7 10 12 15 17 10"/>
-                                        <line x1="12" y1="15" x2="12" y2="3"/>
-                                    </svg>
+                                <span class="page-title-sub">管理店内各项费用支出</span>
+</div>
+<div class="page-actions">
+<button class="btn btn-secondary" onclick="exportData()">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14">
+<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+<polyline points="7 10 12 15 17 10"></polyline>
+<line x1="12" x2="12" y1="15" y2="3"></line>
+</svg>
                                     导出
                                 </button>
-                                <button class="btn btn-primary" onclick="openModal()">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"/>
-                                        <line x1="5" y1="12" x2="19" y2="12"/>
-                                    </svg>
+<button class="btn btn-primary" onclick="openModal()">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14">
+<line x1="12" x2="12" y1="5" y2="19"></line>
+<line x1="5" x2="19" y1="12" y2="12"></line>
+</svg>
                                     记一笔
                                 </button>
-                            </div>
-                        </div>
-                <div class="stats-bar">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-label">本月总支出</span>
-                        </div>
-                        <div class="stat-value">¥ 48,650</div>
-                        <div class="stat-change">较上月 +12.5%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-label">本月支出笔数</span>
-                        </div>
-                        <div class="stat-value">24</div>
-                        <div class="stat-change">本月共记录 24 笔</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-label">最大单笔</span>
-                        </div>
-                        <div class="stat-value">¥ 18,500</div>
-                        <div class="stat-change">工资支出</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-label">今日支出</span>
-                        </div>
-                        <div class="stat-value">¥ 2,300</div>
-                        <div class="stat-change">共 3 笔</div>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <div class="panel-header">
-                        <div class="panel-title-row">
-                            <div class="panel-title">
-                                <div class="panel-title-dot"></div>
+</div>
+</div>
+<div class="stats-bar">
+<div class="stat-card">
+<div class="stat-header">
+<span class="stat-label">本月总支出</span>
+</div>
+<div class="stat-value">¥ 48,650</div>
+<div class="stat-change">较上月 +12.5%</div>
+</div>
+<div class="stat-card">
+<div class="stat-header">
+<span class="stat-label">本月支出笔数</span>
+</div>
+<div class="stat-value">24</div>
+</div>
+<div class="stat-card">
+<div class="stat-header">
+<span class="stat-label">最大单笔</span>
+</div>
+<div class="stat-value">¥ 18,500</div>
+<div class="stat-change">工资支出</div>
+</div>
+<div class="stat-card">
+<div class="stat-header">
+<span class="stat-label">今日支出</span>
+</div>
+<div class="stat-value">¥ 2,300</div>
+<div class="stat-change">共 3 笔</div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header">
+<div class="panel-title-row">
+<div class="panel-title">
+<div class="panel-title-dot"></div>
                                 支出明细
                             </div>
-                            <button class="mobile-filter-btn" type="button" onclick="openMobileExpenseFilter()" aria-label="打开筛选">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                                </svg>
+<button aria-label="打开筛选" class="mobile-filter-btn" onclick="openMobileExpenseFilter()" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+</svg>
                                 筛选
                             </button>
-                        </div>
-                        <div class="panel-tools" id="expenseFilterPanel">
-                            <div class="mobile-filter-panel">
-                                <div class="mobile-filter-head">
-                                    <div class="mobile-filter-title">筛选条件</div>
-                                    <button class="mobile-filter-close" type="button" onclick="closeMobileExpenseFilter()" aria-label="关闭筛选">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="search-box">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="m21 21-4.35-4.35"/>
-                                </svg>
-                                <input type="text" placeholder="搜索项目..." id="expenseSearch">
-                                </div>
-                                <select class="filter-select" id="categoryFilter">
-                                <option value="">全部类别</option>
-                                <option value="daily">日常运营成本</option>
-                                <option value="staff">人员支出</option>
-                                <option value="product">产品耗材</option>
-                                <option value="equipment">设备相关</option>
-                                <option value="marketing">营销推广</option>
-                                <option value="other">其他费用</option>
-                                </select>
-                                <select class="filter-select" id="projectFilter">
-                                <option value="">全部项目</option>
-                                <optgroup label="日常运营成本" data-category="daily">
-                                    <option value="房租">房租</option>
-                                    <option value="物业费">物业费</option>
-                                    <option value="水费">水费</option>
-                                    <option value="电费">电费</option>
-                                    <option value="网络通讯费">网络通讯费</option>
-                                    <option value="清洁耗材">清洁耗材</option>
-                                    <option value="其他（鲜花/水果/茶水）">其他（鲜花/水果/茶水）</option>
-                                </optgroup>
-                                <optgroup label="人员支出" data-category="staff">
-                                    <option value="工资">工资</option>
-                                    <option value="社保">社保</option>
-                                    <option value="公积金">公积金</option>
-                                    <option value="培训费用">培训费用</option>
-                                    <option value="节日福利">节日福利</option>
-                                    <option value="生日礼金">生日礼金</option>
-                                    <option value="生育期薪资">生育期薪资</option>
-                                </optgroup>
-                                <optgroup label="产品耗材" data-category="product">
-                                    <option value="美容产品">美容产品</option>
-                                    <option value="仪器耗材">仪器耗材</option>
-                                </optgroup>
-                                <optgroup label="设备相关" data-category="equipment">
-                                    <option value="仪器折旧费">仪器折旧费</option>
-                                    <option value="设备维护费">设备维护费</option>
-                                    <option value="新设备购置">新设备购置</option>
-                                </optgroup>
-                                <optgroup label="营销推广" data-category="marketing">
-                                    <option value="线上推广（美团/抖音）">线上推广（美团/抖音）</option>
-                                    <option value="线下活动物料">线下活动物料</option>
-                                    <option value="客户礼品">客户礼品</option>
-                                </optgroup>
-                                <optgroup label="其他费用" data-category="other">
-                                    <option value="税费">税费</option>
-                                    <option value="工商年检费">工商年检费</option>
-                                    <option value="基础设施维修/更换">基础设施维修/更换</option>
-                                </optgroup>
-                                </select>
-                                <div class="date-filter-group">
-                                <input type="date" class="filter-select" id="dateFrom">
-                                <span style="font-size:12px;color:var(--text-muted)">~</span>
-                                <input type="date" class="filter-select" id="dateTo">
-                                </div>
-                                <div class="filter-actions">
-                                <button class="btn btn-primary" onclick="applyTimeFilter()">筛选</button>
-                                <button class="btn btn-secondary" onclick="resetExpenseFilter()">重置</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="filter-stats-bar" id="filterStatsBar">
-                        <div class="stats-item">筛选结果：支出合计 <span class="stats-value amount">¥ 48,650</span></div>
-                        <div class="stats-item">支出笔数 <span class="stats-value" id="filterCount">24</span> 笔</div>
-                    </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>支出类别</th>
-                                    <th>具体项目</th>
-                                    <th>实际支出</th>
-                                    <th>支出日期</th>
-                                    <th>经办人</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span class="category-text">日常运营成本</span></td>
-                                    <td>房租</td>
-                                    <td><span class="amount">¥ 15,000</span></td>
-                                    <td>2026-05-05</td>
-                                    <td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">人员支出</span></td>
-                                    <td>工资</td>
-                                    <td><span class="amount">¥ 18,500</span></td>
-                                    <td>2026-05-10</td>
-                                    <td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">产品耗材</span></td>
-                                    <td>美容产品</td>
-                                    <td><span class="amount">¥ 4,800</span></td>
-                                    <td>2026-05-12</td>
-                                    <td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">设备相关</span></td>
-                                    <td>设备维护费</td>
-                                    <td><span class="amount">¥ 1,500</span></td>
-                                    <td>2026-05-15</td>
-                                    <td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">营销推广</span></td>
-                                    <td>线上推广（美团/抖音）</td>
-                                    <td><span class="amount">¥ 2,850</span></td>
-                                    <td>2026-05-18</td>
-                                    <td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">日常运营成本</span></td>
-                                    <td>物业费</td>
-                                    <td><span class="amount">¥ 800</span></td>
-                                    <td>2026-05-20</td>
-                                    <td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="category-text">人员支出</span></td>
-                                    <td>社保</td>
-                                    <td><span class="amount">¥ 4,500</span></td>
-                                    <td>2026-05-22</td>
-                                    <td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
-                                    <td>
-                                        <div class="action-btns">
-                                            <button class="action-btn" title="编辑">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                                </svg>
-                                            </button>
-                                            <button class="action-btn" title="删除">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"/>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="pagination">
-                        <button class="page-btn" disabled>上一页</button>
-                        <button class="page-btn active">1</button>
-                        <button class="page-btn">2</button>
-                        <button class="page-btn">3</button>
-                        <span class="page-info">共 3 页</span>
-                        <button class="page-btn">下一页</button>
-                    </div>
-                </div>
-            </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">新增支出</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-search">
-                    <div class="modal-search-box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.35-4.35"/>
-                        </svg>
-                        <input type="text" class="modal-search-input" placeholder="搜索支出项目...（如：房租、工资、电费）" id="projectSearch" oninput="searchProjects(this.value)">
-                    </div>
-                </div>
-                <div id="addView">
-                    <div class="modal-split">
-                        <div class="modal-left" id="categoryList">
-                            <div class="modal-left-item active" data-category="daily" onclick="switchCategory('daily', this)">
-                                <span>日常运营成本</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('daily')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div class="modal-left-item" data-category="staff" onclick="switchCategory('staff', this)">
-                                <span>人员支出</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('staff')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div class="modal-left-item" data-category="product" onclick="switchCategory('product', this)">
-                                <span>产品耗材</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('product')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div class="modal-left-item" data-category="equipment" onclick="switchCategory('equipment', this)">
-                                <span>设备相关</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('equipment')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div class="modal-left-item" data-category="marketing" onclick="switchCategory('marketing', this)">
-                                <span>营销推广</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('marketing')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div class="modal-left-item" data-category="other" onclick="switchCategory('other', this)">
-                                <span>其他费用</span>
-                                <button class="delete-category" onclick="event.stopPropagation();deleteCategory('other')" title="删除类别">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                                </button>
-                            </div>
-                            <div id="addCategoryArea">
-                                <div class="add-custom-left" onclick="showAddCategoryInput()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span>自定义类别</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-right" id="projectList">
-                            <div class="modal-right-title"><div class="dot"></div><span id="currentCategoryTitle">日常运营成本</span></div>
-                            <div class="project-grid" id="projectGrid">
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>房租</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>物业费</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>水费</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>电费</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>网络通讯费</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>清洁耗材</span>
-                                </div>
-                                <div class="project-item" onclick="selectProject(this)">
-                                    <div class="check"></div>
-                                    <span>其他（鲜花/水果/茶水）</span>
-                                </div>
-                                <div class="add-custom-btn" onclick="showAddProjectInput()" style="grid-column:1/-1">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    <span>自定义项目</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">实际支出金额</label>
-                                <input type="number" class="form-input" placeholder="输入实际支出金额">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">支出日期</label>
-                                <input type="date" class="form-input">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">经办人</label>
-                                <select class="form-input">
-                                    <option value="">请选择经办人</option>
-                                    <option value="张店长">张店长</option>
-                                    <option value="李前台">李前台</option>
-                                    <option value="王美容师">王美容师</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">备注</label>
-                                <input type="text" class="form-input" placeholder="输入备注信息...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-                <button class="btn btn-primary" onclick="saveExpense()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<div class="panel-tools" id="expenseFilterPanel">
+<div class="mobile-filter-panel">
+<div class="mobile-filter-head">
+<div class="mobile-filter-title">筛选条件</div>
+<button aria-label="关闭筛选" class="mobile-filter-close" onclick="closeMobileExpenseFilter()" type="button">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<line x1="18" x2="6" y1="6" y2="18"></line>
+<line x1="6" x2="18" y1="6" y2="18"></line>
+</svg>
+</button>
+</div>
+<div class="search-box">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="11" cy="11" r="8"></circle>
+<path d="m21 21-4.35-4.35"></path>
+</svg>
+<input id="expenseSearch" placeholder="搜索项目..." type="text"/>
+</div>
+<select class="filter-select" id="categoryFilter">
+<option value="">全部类别</option>
+<option value="daily">日常运营成本</option>
+<option value="staff">人员支出</option>
+<option value="product">产品耗材</option>
+<option value="equipment">设备相关</option>
+<option value="marketing">营销推广</option>
+<option value="other">其他费用</option>
+</select>
+<select class="filter-select" id="projectFilter">
+<option value="">全部项目</option>
+<optgroup data-category="daily" label="日常运营成本">
+<option value="房租">房租</option>
+<option value="物业费">物业费</option>
+<option value="水费">水费</option>
+<option value="电费">电费</option>
+<option value="网络通讯费">网络通讯费</option>
+<option value="清洁耗材">清洁耗材</option>
+<option value="其他（鲜花/水果/茶水）">其他（鲜花/水果/茶水）</option>
+</optgroup>
+<optgroup data-category="staff" label="人员支出">
+<option value="工资">工资</option>
+<option value="社保">社保</option>
+<option value="公积金">公积金</option>
+<option value="培训费用">培训费用</option>
+<option value="节日福利">节日福利</option>
+<option value="生日礼金">生日礼金</option>
+<option value="生育期薪资">生育期薪资</option>
+</optgroup>
+<optgroup data-category="product" label="产品耗材">
+<option value="美容产品">美容产品</option>
+<option value="仪器耗材">仪器耗材</option>
+</optgroup>
+<optgroup data-category="equipment" label="设备相关">
+<option value="仪器折旧费">仪器折旧费</option>
+<option value="设备维护费">设备维护费</option>
+<option value="新设备购置">新设备购置</option>
+</optgroup>
+<optgroup data-category="marketing" label="营销推广">
+<option value="线上推广（美团/抖音）">线上推广（美团/抖音）</option>
+<option value="线下活动物料">线下活动物料</option>
+<option value="客户礼品">客户礼品</option>
+</optgroup>
+<optgroup data-category="other" label="其他费用">
+<option value="税费">税费</option>
+<option value="工商年检费">工商年检费</option>
+<option value="基础设施维修/更换">基础设施维修/更换</option>
+</optgroup>
+</select>
+<div class="date-filter-group">
+<input class="filter-select" id="dateFrom" type="date"/>
+<span style="font-size:12px;color:var(--text-muted)">~</span>
+<input class="filter-select" id="dateTo" type="date"/>
+</div>
+<div class="filter-actions">
+<button class="btn btn-primary" onclick="applyTimeFilter()">筛选</button>
+<button class="btn btn-secondary" onclick="resetExpenseFilter()">重置</button>
+</div>
+</div>
+</div>
+</div>
+<div class="filter-stats-bar" id="filterStatsBar">
+<div class="stats-item">筛选结果：支出合计 <span class="stats-value amount">¥ 48,650</span></div>
+<div class="stats-item">支出笔数 <span class="stats-value" id="filterCount">24</span> 笔</div>
+</div>
+<div class="table-container">
+<table id="expenseTable">
+<thead>
+<tr>
+<th>支出类别</th>
+<th>具体项目</th>
+<th>实际支出</th>
+<th>支出日期</th>
+<th>经办人</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr data-amount="15000" data-category="日常运营成本" data-date="2026-05-05" data-person="张店长" data-person-avatar="张" data-project="房租">
+<td><span class="category-text">日常运营成本</span></td>
+<td>房租</td>
+<td><span class="amount">¥ 15,000</span></td>
+<td>2026-05-05</td>
+<td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="18500" data-category="人员支出" data-date="2026-05-10" data-person="张店长" data-person-avatar="张" data-project="工资">
+<td><span class="category-text">人员支出</span></td>
+<td>工资</td>
+<td><span class="amount">¥ 18,500</span></td>
+<td>2026-05-10</td>
+<td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="4800" data-category="产品耗材" data-date="2026-05-12" data-person="李前台" data-person-avatar="李" data-project="美容产品">
+<td><span class="category-text">产品耗材</span></td>
+<td>美容产品</td>
+<td><span class="amount">¥ 4,800</span></td>
+<td>2026-05-12</td>
+<td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="1500" data-category="设备相关" data-date="2026-05-15" data-person="张店长" data-person-avatar="张" data-project="设备维护费">
+<td><span class="category-text">设备相关</span></td>
+<td>设备维护费</td>
+<td><span class="amount">¥ 1,500</span></td>
+<td>2026-05-15</td>
+<td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="2850" data-category="营销推广" data-date="2026-05-18" data-person="李前台" data-person-avatar="李" data-project="线上推广（美团/抖音）">
+<td><span class="category-text">营销推广</span></td>
+<td>线上推广（美团/抖音）</td>
+<td><span class="amount">¥ 2,850</span></td>
+<td>2026-05-18</td>
+<td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="800" data-category="日常运营成本" data-date="2026-05-20" data-person="李前台" data-person-avatar="李" data-project="物业费">
+<td><span class="category-text">日常运营成本</span></td>
+<td>物业费</td>
+<td><span class="amount">¥ 800</span></td>
+<td>2026-05-20</td>
+<td><div class="person-info"><div class="person-avatar">李</div>李前台</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+<tr data-amount="4500" data-category="人员支出" data-date="2026-05-22" data-person="张店长" data-person-avatar="张" data-project="社保">
+<td><span class="category-text">人员支出</span></td>
+<td>社保</td>
+<td><span class="amount">¥ 4,500</span></td>
+<td>2026-05-22</td>
+<td><div class="person-info"><div class="person-avatar">张</div>张店长</div></td>
+<td>
+<div class="action-btns">
+<button class="action-btn" title="编辑">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>
+</button>
+<button class="action-btn" title="删除">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="3 6 5 6 21 6"></polyline>
+<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+</svg>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Mobile expense card container (rendered by JS) -->
+<div class="expense-card-container" id="expenseCardContainer"></div>
+</div>
+<div class="pagination">
+<button class="page-btn" disabled="">上一页</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<span class="page-info">共 3 页</span>
+<button class="page-btn">下一页</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal">
+<div class="modal">
+<div class="modal-header">
+<div class="modal-title">新增支出</div>
+<button class="modal-close" onclick="closeModal()">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<line x1="18" x2="6" y1="6" y2="18"></line>
+<line x1="6" x2="18" y1="6" y2="18"></line>
+</svg>
+</button>
+</div>
+<div class="modal-body">
+<div class="modal-search">
+<div class="modal-search-box">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="11" cy="11" r="8"></circle>
+<path d="m21 21-4.35-4.35"></path>
+</svg>
+<input class="modal-search-input" id="projectSearch" oninput="searchProjects(this.value)" placeholder="搜索支出项目...（如：房租、工资、电费）" type="text"/>
+</div>
+</div>
+<div id="addView">
+<div class="modal-split">
+<div class="modal-left" id="categoryList">
+<div class="modal-left-item active" data-category="daily" onclick="switchCategory('daily', this)">
+<span>日常运营成本</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('daily')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div class="modal-left-item" data-category="staff" onclick="switchCategory('staff', this)">
+<span>人员支出</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('staff')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div class="modal-left-item" data-category="product" onclick="switchCategory('product', this)">
+<span>产品耗材</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('product')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div class="modal-left-item" data-category="equipment" onclick="switchCategory('equipment', this)">
+<span>设备相关</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('equipment')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div class="modal-left-item" data-category="marketing" onclick="switchCategory('marketing', this)">
+<span>营销推广</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('marketing')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div class="modal-left-item" data-category="other" onclick="switchCategory('other', this)">
+<span>其他费用</span>
+<button class="delete-category" onclick="event.stopPropagation();deleteCategory('other')" title="删除类别">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<div id="addCategoryArea">
+<div class="add-custom-left" onclick="showAddCategoryInput()">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+<span>自定义类别</span>
+</div>
+</div>
+</div>
+<div class="modal-right" id="projectList">
+<div class="modal-right-title"><div class="dot"></div><span id="currentCategoryTitle">日常运营成本</span></div>
+<div class="project-grid" id="projectGrid">
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>房租</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>物业费</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>水费</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>电费</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>网络通讯费</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>清洁耗材</span>
+</div>
+<div class="project-item" onclick="selectProject(this)">
+<div class="check"></div>
+<span>其他（鲜花/水果/茶水）</span>
+</div>
+<div class="add-custom-btn" onclick="showAddProjectInput()" style="grid-column:1/-1">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+<span>自定义项目</span>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-form">
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">实际支出金额</label>
+<input class="form-input" placeholder="输入实际支出金额" type="number"/>
+</div>
+<div class="form-group">
+<label class="form-label">支出日期</label>
+<input class="form-input" type="date"/>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">经办人</label>
+<select class="form-input form-select" id="deskPerson" name="person">
+<option value="">请选择经办人</option>
+<option value="张店长">张店长</option>
+<option value="李前台">李前台</option>
+<option value="王美容师">王美容师</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">备注</label>
+<input class="form-input" placeholder="输入备注信息..." type="text"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeModal()">取消</button>
+<button class="btn btn-primary" onclick="saveExpense()">保存</button>
+</div>
+</div>
+</div>
+<script>
         const categoryData = {
             daily: { title: '日常运营成本', projects: ['房租', '物业费', '水费', '电费', '网络通讯费', '清洁耗材', '其他（鲜花/水果/茶水）'] },
             staff: { title: '人员支出', projects: ['工资', '社保', '公积金', '培训费用', '节日福利', '生日礼金', '生育期薪资'] },
@@ -1027,14 +1146,266 @@
         function openModal() {
             document.getElementById('modal').classList.add('active');
             currentCategory = Object.keys(categoryData)[0];
-            renderCategoryList();
-            renderProjects(currentCategory);
-            document.getElementById('currentCategoryTitle').textContent = categoryData[currentCategory]?.title || '';
+            document.body.style.overflow = 'hidden';
+            
+            if (window.innerWidth < 768) {
+                renderMobileAddView();
+            } else {
+                renderCategoryList();
+                renderProjects(currentCategory);
+                document.getElementById('currentCategoryTitle').textContent = categoryData[currentCategory]?.title || '';
+            }
         }
+        // ====== Mobile Immersive Add View ======
+        let mobileSelectedProject = null;
+        let mobileSelectedPerson = null;
+
+        function renderMobileAddView() {
+            const modalBody = document.querySelector('.modal-body');
+            modalBody.innerHTML =
+`<div id="mobileAddView">
+    <div class="mobile-category-selector" onclick="openMobileCategorySheet()">
+        <span class="mobile-category-tag">
+            <span class="mobile-category-dot" style="background:var(--primary)"></span>
+            <span id="mobileCategoryName">`+categoryData[currentCategory].title+`</span>
+        </span>
+        <svg class="mobile-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="mobile-amount-area">
+        <div class="mobile-amount-prefix">&yen;</div>
+        <input type="number" class="mobile-amount-input" id="mobileAmountInput" placeholder="0.00" inputmode="decimal" autofocus>
+    </div>
+    <div class="mobile-project-header">
+        <span class="mobile-project-section-title">选择支出项目</span>
+        <div class="mobile-project-search" onclick="this.classList.toggle('expanded');document.getElementById('mobileProjectSearchInput').focus()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" class="mobile-project-search-input" id="mobileProjectSearchInput" placeholder="搜索项目..." oninput="filterMobileProjects(this.value)">
+        </div>
+    </div>
+    <div class="mobile-project-grid" id="mobileProjectGrid"></div>
+    <div class="mobile-form-divider"></div>
+    <div class="mobile-form-fields">
+        <div class="mobile-field-row" onclick="openMobileDatePicker()">
+            <div class="mobile-field-icon">📅</div>
+            <div class="mobile-field-content">
+                <span class="mobile-field-label">日期</span>
+                <span class="mobile-field-value" id="mobileDateDisplay">今天</span>
+            </div>
+            <input type="date" id="mobileDateInput" style="display:none">
+            <svg class="mobile-field-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+        <div class="mobile-field-row" onclick="openMobilePersonSheet()">
+            <div class="mobile-field-icon">👤</div>
+            <div class="mobile-field-content">
+                <span class="mobile-field-label">经办人</span>
+                <span class="mobile-field-value" id="mobilePersonDisplay">请选择</span>
+            </div>
+            <svg class="mobile-field-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+        <div class="mobile-field-row">
+            <div class="mobile-field-icon">📝</div>
+            <div class="mobile-field-content" style="flex:1">
+                <span class="mobile-field-label">备注</span>
+                <input type="text" class="mobile-note-input" id="mobileNoteInput" placeholder="可选填写备注...">
+            </div>
+        </div>
+    </div>
+    <div style="height:16px"></div>
+</div>`;
+            renderMobileProjects(currentCategory);
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            document.getElementById('mobileDateInput').value = dateStr;
+            updateMobileDateDisplay(dateStr);
+            mobileSelectedPerson = '张店长';
+            document.getElementById('mobilePersonDisplay').textContent = '张店长';
+            setTimeout(() => {
+                const ai = document.getElementById('mobileAmountInput');
+                if (ai) ai.focus();
+            }, 300);
+        }
+
+        function renderMobileProjects(categoryKey) {
+            const grid = document.getElementById('mobileProjectGrid');
+            const cat = categoryData[categoryKey];
+            if (!cat) return;
+            let html = '';
+            cat.projects.forEach(proj => {
+                const sel = mobileSelectedProject === proj ? 'selected' : '';
+                html += '<div class="mobile-project-item '+sel+'" data-project="'+proj.replace(/'/g,"\\'")+'" onclick="selectMobileProject(this,\''+proj.replace(/'/g,"\\'")+'\')"><div class="mobile-check"></div><span>'+proj+'</span></div>';
+            });
+            html += '<div class="mobile-add-custom-project" onclick="showMobileAddProject()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>自定义项目</span></div>';
+            grid.innerHTML = html;
+        }
+
+        function selectMobileProject(el, projectName) {
+            document.querySelectorAll('.mobile-project-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+            mobileSelectedProject = projectName;
+        }
+
+        function filterMobileProjects(query) {
+            const items = document.querySelectorAll('.mobile-project-item');
+            const sq = query.toLowerCase().trim();
+            items.forEach(item => {
+                const name = item.getAttribute('data-project') || item.textContent.trim();
+                item.style.display = (!sq || name.toLowerCase().includes(sq)) ? 'flex' : 'none';
+            });
+        }
+
+        function showMobileAddProject() {
+            const grid = document.getElementById('mobileProjectGrid');
+            const addBtn = grid.querySelector('.mobile-add-custom-project');
+            if (!addBtn) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mobile-add-custom-project';
+            wrapper.style.cssText = 'grid-column:1/-1;display:flex;gap:6px;padding:8px 10px;border-style:solid';
+            wrapper.innerHTML = '<input type="text" id="mobileNewProjectInput" placeholder="输入项目名称..." style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent" onkeydown="if(event.key===\'Enter\')confirmMobileAddProject();if(event.key===\'Escape\')cancelMobileAddProject()"><button onclick="confirmMobileAddProject()" style="background:var(--primary);color:white;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">确定</button><button onclick="cancelMobileAddProject()" style="background:#F3F4F6;color:#6B7280;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">取消</button>';
+            addBtn.replaceWith(wrapper);
+            document.getElementById('mobileNewProjectInput').focus();
+        }
+
+        function confirmMobileAddProject() {
+            const input = document.getElementById('mobileNewProjectInput');
+            const name = input.value.trim();
+            if (!name) { input.focus(); return; }
+            const cat = categoryData[currentCategory];
+            if (cat.projects.includes(name)) { alert('该项目已存在'); input.focus(); return; }
+            cat.projects.push(name);
+            renderMobileProjects(currentCategory);
+            updateFilterDropdowns();
+        }
+
+        function cancelMobileAddProject() {
+            renderMobileProjects(currentCategory);
+        }
+
+        function openMobileCategorySheet() {
+            const overlay = document.createElement('div');
+            overlay.className = 'mobile-sheet-overlay';
+            overlay.id = 'mobileCategoryOverlay';
+            overlay.onclick = closeMobileCategorySheet;
+            document.body.appendChild(overlay);
+            const sheet = document.createElement('div');
+            sheet.className = 'mobile-category-sheet';
+            sheet.id = 'mobileCategorySheet';
+            let itemsHtml = '';
+            Object.entries(categoryData).forEach(([key, val]) => {
+                const sel = key === currentCategory ? 'selected' : '';
+                itemsHtml += '<div class="mobile-category-sheet-item '+sel+'" onclick="selectMobileCategory(\''+key+'\')"><div class="mobile-category-sheet-item-left"><div class="mobile-category-sheet-dot" style="background:var(--primary)"></div><span class="mobile-category-sheet-name">'+val.title+'</span></div><div class="mobile-category-sheet-check"></div></div>';
+            });
+            sheet.innerHTML = '<div class="mobile-category-sheet-header"><span class="mobile-category-sheet-title">选择费用类别</span><button class="mobile-category-sheet-close" onclick="closeMobileCategorySheet()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6B7280" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="mobile-category-sheet-body">'+itemsHtml+'<div class="mobile-category-sheet-add" onclick="showMobileAddCategory()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>添加自定义类别</span></div></div>';
+            document.body.appendChild(sheet);
+            requestAnimationFrame(() => { overlay.classList.add('active'); sheet.classList.add('active'); });
+        }
+
+        function closeMobileCategorySheet() {
+            const overlay = document.getElementById('mobileCategoryOverlay');
+            const sheet = document.getElementById('mobileCategorySheet');
+            if (overlay) { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); }
+            if (sheet) { sheet.classList.remove('active'); setTimeout(() => sheet.remove(), 300); }
+        }
+
+        function selectMobileCategory(key) {
+            currentCategory = key;
+            document.getElementById('mobileCategoryName').textContent = categoryData[key].title;
+            document.getElementById('projectSearch').value = '';
+            renderMobileProjects(key);
+            closeMobileCategorySheet();
+        }
+
+        function showMobileAddCategory() {
+            const body = document.querySelector('.mobile-category-sheet-body');
+            const addBtn = body.querySelector('.mobile-category-sheet-add');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mobile-category-sheet-add';
+            wrapper.style.cssText = 'display:flex;gap:8px;padding:10px;border-style:solid';
+            wrapper.innerHTML = '<input type="text" id="mobileNewCategoryInput" placeholder="输入类别名称..." style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent" onkeydown="if(event.key===\'Enter\')confirmMobileAddCategory();if(event.key===\'Escape\')cancelMobileAddCategoryInSheet()"><button onclick="confirmMobileAddCategory()" style="background:var(--primary);color:white;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">确定</button><button onclick="cancelMobileAddCategoryInSheet()" style="background:#F3F4F6;color:#6B7280;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">取消</button>';
+            addBtn.replaceWith(wrapper);
+            document.getElementById('mobileNewCategoryInput').focus();
+        }
+
+        function confirmMobileAddCategory() {
+            const input = document.getElementById('mobileNewCategoryInput');
+            const name = input.value.trim();
+            if (!name) { input.focus(); return; }
+            const exists = Object.values(categoryData).some(c => c.title === name);
+            if (exists) { alert('该类别已存在'); input.focus(); return; }
+            customCategoryCounter++;
+            const key = 'custom_' + customCategoryCounter;
+            categoryData[key] = { title: name, projects: [] };
+            currentCategory = key;
+            document.getElementById('mobileCategoryName').textContent = name;
+            renderMobileProjects(key);
+            updateFilterDropdowns();
+            closeMobileCategorySheet();
+            openMobileCategorySheet();
+        }
+
+        function cancelMobileAddCategoryInSheet() {
+            closeMobileCategorySheet();
+            openMobileCategorySheet();
+        }
+
+        function openMobilePersonSheet() {
+            const overlay = document.createElement('div');
+            overlay.className = 'mobile-sheet-overlay';
+            overlay.id = 'mobilePersonOverlay';
+            overlay.onclick = closeMobilePersonSheet;
+            document.body.appendChild(overlay);
+            const sheet = document.createElement('div');
+            sheet.className = 'mobile-category-sheet';
+            sheet.id = 'mobilePersonSheet';
+            const persons = [{ id: '张店长', initial: '张' }, { id: '李前台', initial: '李' }, { id: '王美容师', initial: '王' }];
+            let itemsHtml = persons.map(p => {
+                const sel = mobileSelectedPerson === p.id ? 'selected' : '';
+                return '<div class="mobile-category-sheet-item '+sel+'" onclick="selectMobilePerson(\''+p.id+'\')"><div class="mobile-category-sheet-item-left"><div style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0">'+p.initial+'</div><span class="mobile-category-sheet-name">'+p.id+'</span></div><div class="mobile-category-sheet-check"></div></div>';
+            }).join('');
+            sheet.innerHTML = '<div class="mobile-category-sheet-header"><span class="mobile-category-sheet-title">选择经办人</span><button class="mobile-category-sheet-close" onclick="closeMobilePersonSheet()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6B7280" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="mobile-category-sheet-body">'+itemsHtml+'</div>';
+            document.body.appendChild(sheet);
+            requestAnimationFrame(() => { overlay.classList.add('active'); sheet.classList.add('active'); });
+        }
+
+        function closeMobilePersonSheet() {
+            const overlay = document.getElementById('mobilePersonOverlay');
+            const sheet = document.getElementById('mobilePersonSheet');
+            if (overlay) { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); }
+            if (sheet) { sheet.classList.remove('active'); setTimeout(() => sheet.remove(), 300); }
+        }
+
+        function selectMobilePerson(personName) {
+            mobileSelectedPerson = personName;
+            document.getElementById('mobilePersonDisplay').textContent = personName;
+            closeMobilePersonSheet();
+        }
+
+        function openMobileDatePicker() {
+            const dateInput = document.getElementById('mobileDateInput');
+            if (dateInput) {
+                if (dateInput.showPicker) { dateInput.showPicker(); } else { dateInput.click(); }
+                dateInput.addEventListener('change', function() { updateMobileDateDisplay(this.value); }, { once: true });
+            }
+        }
+
+        function updateMobileDateDisplay(dateStr) {
+            const display = document.getElementById('mobileDateDisplay');
+            if (!display) return;
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            if (dateStr === todayStr) {
+                display.textContent = '今天';
+            } else {
+                const parts = dateStr.split('-');
+                display.textContent = parts[0]+'年'+parseInt(parts[1])+'月'+parseInt(parts[2])+'日';
+            }
+        }
+
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
             const searchInput = document.getElementById('projectSearch');
             if (searchInput) searchInput.value = '';
+            document.body.style.overflow = '';
+            document.querySelectorAll('.mobile-category-sheet, .mobile-sheet-overlay').forEach(el => el.remove());
         }
         function openMobileExpenseFilter() {
             document.body.classList.add('expense-mobile-filter-open');
@@ -1095,9 +1466,41 @@
             document.querySelectorAll('.project-item').forEach(opt => opt.classList.remove('selected'));
             el.classList.add('selected');
         }
+        function selectPerson(el) {
+            document.querySelectorAll('.person-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+        }
         function saveExpense() {
+            const isMobile = document.getElementById('mobileAmountInput') !== null && window.innerWidth < 768;
+
+            if (isMobile) {
+                const amountValue = document.getElementById('mobileAmountInput').value.trim();
+                const amountNumber = Number(amountValue);
+
+                if (!mobileSelectedProject) {
+                    alert('请选择支出项目');
+                    return;
+                }
+
+                if (!amountValue) {
+                    alert('请输入实际支出金额');
+                    document.getElementById('mobileAmountInput').focus();
+                    return;
+                }
+
+                if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
+                    alert('请输入大于 0 的实际支出金额');
+                    document.getElementById('mobileAmountInput').focus();
+                    return;
+                }
+
+                closeModal();
+                return;
+            }
+
             const selectedProject = document.querySelector('#projectGrid .project-item.selected');
             const amountInput = document.querySelector('.modal-form input[type="number"]');
+            const personSelect = document.getElementById('deskPerson');
             const amountValue = amountInput ? amountInput.value.trim() : '';
             const amountNumber = Number(amountValue);
 
@@ -1118,6 +1521,12 @@
                     amountInput.focus();
                     amountInput.select();
                 }
+                return;
+            }
+
+            if (!personSelect || !personSelect.value) {
+                alert('请选择经办人');
+                if (personSelect) personSelect.focus();
                 return;
             }
 
@@ -1189,22 +1598,54 @@
             updateFilterStats();
         }
 
+        /** Render mobile expense cards from table rows */
+        function renderExpenseCards() {
+            const container = document.getElementById('expenseCardContainer');
+            if (!container) return;
+            const rows = document.querySelectorAll('#expenseTable tbody tr');
+            let html = '';
+            rows.forEach(row => {
+                if (row.style.display === 'none') return;
+                const cat = row.dataset.category || '';
+                const project = row.dataset.project || '';
+                const amount = row.dataset.amount || '0';
+                const date = row.dataset.date || '';
+                const person = row.dataset.person || '';
+                const avatar = row.dataset.personAvatar || person.charAt(0) || '?';
+                const formattedAmount = '¥ ' + Number(amount).toLocaleString();
+                const editSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+                const delSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+                html += `<div class="expense-card">
+                    <span class="expense-card-category">${cat}</span>
+                    <div class="expense-card-project-name">${project}</div>
+                    <div class="expense-card-amount">${formattedAmount}</div>
+                    <div class="expense-card-meta">
+                        <span>📅 ${date}</span>
+                        <span>👤 ${person}</span>
+                    </div>
+                    <div class="expense-card-divider"></div>
+                    <div class="expense-card-actions">
+                        <button class="expense-card-action-btn" title="编辑">${editSvg}</button>
+                        <button class="expense-card-action-btn" title="删除">${delSvg}</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html || '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:14px">暂无支出记录</div>';
+        }
+
         function updateFilterStats() {
-            const table = document.querySelector('.table-container table');
+            const table = document.getElementById('expenseTable');
             if (!table) return;
             const rows = table.querySelectorAll('tbody tr');
             let totalAmount = 0;
             let count = 0;
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
-                    const amountCell = row.querySelector('.amount');
-                    if (amountCell) {
-                        const amountText = amountCell.textContent.replace(/[¥,\s]/g, '');
-                        const amount = parseFloat(amountText);
-                        if (!isNaN(amount)) {
-                            totalAmount += amount;
-                            count++;
-                        }
+                    const amountText = row.dataset.amount;
+                    const amount = parseFloat(amountText);
+                    if (!isNaN(amount)) {
+                        totalAmount += amount;
+                        count++;
                     }
                 }
             });
@@ -1212,13 +1653,57 @@
             const countEl = document.getElementById('filterCount');
             if (amountEl) amountEl.textContent = '¥ ' + totalAmount.toLocaleString();
             if (countEl) countEl.textContent = count;
+
+            // Also re-render cards for mobile
+            renderExpenseCards();
         }
 
-        document.getElementById('expenseSearch').addEventListener('input', updateFilterStats);
-        document.getElementById('categoryFilter').addEventListener('change', updateFilterStats);
-        document.getElementById('projectFilter').addEventListener('change', updateFilterStats);
-        document.getElementById('dateFrom').addEventListener('change', updateFilterStats);
-        document.getElementById('dateTo').addEventListener('change', updateFilterStats);
+        // Override filter event listeners to also update cards
+        document.getElementById('expenseSearch').addEventListener('input', function() {
+            filterTableRows();
+            updateFilterStats();
+        });
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            filterTableRows();
+            updateFilterStats();
+        });
+        document.getElementById('projectFilter').addEventListener('change', function() {
+            filterTableRows();
+            updateFilterStats();
+        });
+        document.getElementById('dateFrom').addEventListener('change', function() {
+            filterTableRows();
+            updateFilterStats();
+        });
+        document.getElementById('dateTo').addEventListener('change', function() {
+            filterTableRows();
+            updateFilterStats();
+        });
+
+        function filterTableRows() {
+            const keyword = document.getElementById('expenseSearch').value.trim().toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const project = document.getElementById('projectFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const rows = document.querySelectorAll('#expenseTable tbody tr');
+
+            let visibleCount = 0;
+            rows.forEach(row => {
+                const rowCat = row.dataset.category || '';
+                const rowProj = row.dataset.project || '';
+                const rowDate = row.dataset.date || '';
+                let show = true;
+                if (keyword && !rowProj.toLowerCase().includes(keyword) && !rowCat.toLowerCase().includes(keyword)) show = false;
+                if (category && rowCat !== categoryData[category]?.title && show) show = false;
+                if (project && rowProj !== project && show) show = false;
+                if (dateFrom && rowDate < dateFrom && show) show = false;
+                if (dateTo && rowDate > dateTo && show) show = false;
+                row.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+            return visibleCount;
+        }
 
         function resetExpenseFilter() {
             document.getElementById('expenseSearch').value = '';
@@ -1232,6 +1717,8 @@
                 group.style.display = '';
             });
             closeMobileExpenseFilter();
+            // Reset all rows to visible
+            document.querySelectorAll('#expenseTable tbody tr').forEach(row => row.style.display = '');
             updateFilterStats();
         }
         document.getElementById('expenseFilterPanel').addEventListener('click', function(event) {
@@ -1239,6 +1726,33 @@
                 closeMobileExpenseFilter();
             }
         });
+
+        // Re-render cards on resize (between desktop and mobile)
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                renderExpenseCards();
+            }, 200);
+        });
+
+        // Initial render of cards
+        document.addEventListener('DOMContentLoaded', function() {
+            renderExpenseCards();
+            initDefaultDate();
+        });
+
+        // Also re-render when existing listeners fire
+        const origUpdateFilterStats = updateFilterStats;
+        updateFilterStats = function() {
+            origUpdateFilterStats();
+            renderExpenseCards();
+        };
+
+        // Ensure init call
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            renderExpenseCards();
+        }
     </script>
 </body>
 </html>
